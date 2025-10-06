@@ -1,0 +1,28 @@
+<div class="login-wrapper" style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f5f5f5;">
+  <div class="login-card" style="width:100%; max-width:400px; padding:2rem; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+    <h2 class="login-title" style="text-align:center; margin-bottom:1.5rem;">Iniciar Sesión</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width" style="width:100%; margin-bottom:1rem;">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="correo" type="correo" placeholder="ejemplo@correo.com" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" style="width:100%; margin-bottom:1rem;">
+        <mat-label>Contraseña</mat-label>
+        <input matInput formControlName="contrasenia" type="contrasenia" placeholder="********" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="full-width" type="submit" [disabled]="status() === 2" style="width:100%; padding:0.8rem; font-size:16px;">
+        <ng-container *ngIf="status() === 2; else loginText">
+          Cargando...
+        </ng-container>
+        <ng-template #loginText>Ingresar</ng-template>
+      </button>
+
+      <p *ngIf="errorMessage()" class="error-text" style="color:red; margin-top:1rem; text-align:center;">
+        {{ errorMessage() }}
+      </p>
+    </form>
+  </div>
+</div>

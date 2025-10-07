@@ -1,9 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common'; // <--- Importante para *ngIf
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ApiClientService } from '../../core/services/api-client.service';
 
 interface LoginResponse {
@@ -15,19 +13,17 @@ interface LoginResponse {
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule
   ],
   templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'] 
 })
 export class LoginComponent {
   loginForm: ReturnType<FormBuilder['group']>;
   errorMessage = signal<string | null>(null);
 
-  constructor(private fb: FormBuilder, private api: ApiClientService) {
+  constructor(private fb: FormBuilder, private api: ApiClientService, private router: Router) {
     this.loginForm = this.fb.group({
       correo: ['', [Validators.required, Validators.email]],
       contrasenia: ['', Validators.required],
@@ -41,25 +37,38 @@ export class LoginComponent {
 
     console.log('Enviando login con:', { correo, contrasenia });
 
-    // Dispara request
     this.api.request('/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ correo, contrasenia })
     });
 
-    // Observa resultado
     setTimeout(() => {
-      const val = this.api.value(); // 👈 llamar signal
+      const val = this.api.value(); 
       console.log('Respuesta de API:', val);
 
       if (val?.error) {
-        this.errorMessage.set(val.error);
+        if (val.error.includes('HTTP 401')) {
+          this.errorMessage.set('Credenciales inválidas. Por favor, verifica tu correo y contraseña.');
+        } else if (val.error.includes('HTTP 400')) {
+          this.errorMessage.set('Solicitud incorrecta. Por favor, verifica el formato de tus datos.');
+        } else {
+          this.errorMessage.set('Ocurrió un error inesperado. Inténtalo de nuevo más tarde.');
+        }
       } else if (val?.token) {
         this.errorMessage.set(null);
         console.log('Login exitoso, token:', val.token);
+        this.router.navigate(['/dashboard']); 
       }
     }, 500);
+  }
+
+  get correo() {
+    return this.loginForm.get('correo');
+  }
+
+  get contrasenia() {
+    return this.loginForm.get('contrasenia');
   }
 
   get status() {

@@ -17,7 +17,7 @@ export class LoginComponent {
   errorMessage = signal<string | null>(null);
   loading = signal(false);
 
-  constructor(
+    constructor(
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router
@@ -26,7 +26,12 @@ export class LoginComponent {
       correo: ['', [Validators.required, Validators.email]],
       contrasenia: ['', Validators.required],
     });
+
+    if (this.auth.isAuthenticated()) {
+      this.router.navigate(['/dashboard']);
+    }
   }
+
 
   get correo() { return this.loginForm.get('correo'); }
   get contrasenia() { return this.loginForm.get('contrasenia'); }

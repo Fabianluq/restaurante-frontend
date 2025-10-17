@@ -51,4 +51,22 @@ export class AuthService {
     this.userData.set(null);
     localStorage.removeItem('jwt');
   }
+  isAuthenticated(): boolean {
+    const token = this.userToken();
+    return token != null && this.isTokenValid(token);
+  }
+
+  private isTokenValid(token: string): boolean {
+    try {
+      const payloadRaw = token.split('.')[1];
+      if (!payloadRaw) return false;
+      const json = atob(payloadRaw.replace(/-/g, '+').replace(/_/g, '/'));
+      const payload = JSON.parse(json);
+      if (!payload || !payload.exp) return false;
+      const nowSec = Math.floor(Date.now() / 1000);
+      return payload.exp > nowSec;
+    } catch {
+      return false;
+    }
+  }
 }

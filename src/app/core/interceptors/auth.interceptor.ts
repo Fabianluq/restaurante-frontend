@@ -13,6 +13,10 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private auth: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (req.headers.has('Authorization') || req.url.endsWith('/auth/login')) {
+      return next.handle(req);
+    }
+
     const token = this.auth.userToken();
     if (!token) return next.handle(req);
 

@@ -26,9 +26,8 @@
         </p>
       </div>
 
-
-      <button type="submit" class="login-button" [disabled]="status() === 2">
-        <ng-container *ngIf="status() === 2; else loginText">
+      <button type="submit" class="login-button" [disabled]="loading()">
+        <ng-container *ngIf="loading(); else loginText">
           Cargando...
         </ng-container>
         <ng-template #loginText>Iniciar Sesión</ng-template>

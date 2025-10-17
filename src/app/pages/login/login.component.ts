@@ -1,77 +1,68 @@
 import { Component, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ApiClientService } from '../../core/services/api-client.service';
-
-interface LoginResponse {
-  token?: string;
-  error?: string;
-}
+import { AuthService } from '../../core/services/auth.service';
+import { LoginRequest } from '../../core/models/auth.models';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'] 
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  loginForm: ReturnType<FormBuilder['group']>;
+  loginForm: FormGroup;
   errorMessage = signal<string | null>(null);
+  loading = signal(false);
 
-  constructor(private fb: FormBuilder, private api: ApiClientService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       correo: ['', [Validators.required, Validators.email]],
       contrasenia: ['', Validators.required],
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.invalid) return;
+  get correo() { return this.loginForm.get('correo'); }
+  get contrasenia() { return this.loginForm.get('contrasenia'); }
 
-    const { correo, contrasenia } = this.loginForm.value;
+  async onSubmit() {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
 
-    console.log('Enviando login con:', { correo, contrasenia });
+    this.errorMessage.set(null);
+    this.loading.set(true);
 
-    this.api.request('/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ correo, contrasenia })
-    });
+    const payload: LoginRequest = {
+      correo: this.loginForm.value.correo,
+      contrasenia: this.loginForm.value.contrasenia
+    };
 
-    setTimeout(() => {
-      const val = this.api.value(); 
-      console.log('Respuesta de API:', val);
+    try {
+      const res = await this.auth.login(payload);
 
-      if (val?.error) {
-        if (val.error.includes('HTTP 401')) {
-          this.errorMessage.set('Credenciales inválidas. Por favor, verifica tu correo y contraseña.');
-        } else if (val.error.includes('HTTP 400')) {
-          this.errorMessage.set('Solicitud incorrecta. Por favor, verifica el formato de tus datos.');
-        } else {
-          this.errorMessage.set('Ocurrió un error inesperado. Inténtalo de nuevo más tarde.');
-        }
-      } else if (val?.token) {
-        this.errorMessage.set(null);
-        console.log('Login exitoso, token:', val.token);
-        this.router.navigate(['/dashboard']); 
+      if (res?.token) {
+        this.router.navigate(['/dashboard']);
+        return;
       }
-    }, 500);
-  }
 
-  get correo() {
-    return this.loginForm.get('correo');
-  }
-
-  get contrasenia() {
-    return this.loginForm.get('contrasenia');
-  }
-
-  get status() {
-    return this.api.value;
+      this.errorMessage.set(res?.error ?? 'Error en el inicio de sesión.');
+    } catch (err: any) {
+      const message = err?.message ?? String(err);
+      if (message.includes('401')) {
+        this.errorMessage.set('Credenciales inválidas. Verifica tu correo y contraseña.');
+      } else {
+        this.errorMessage.set('Ocurrió un error. Intenta más tarde.');
+      }
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

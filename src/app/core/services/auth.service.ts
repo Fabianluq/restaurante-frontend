@@ -1,31 +1,39 @@
 import { Injectable, signal } from '@angular/core';
 import { ApiClientService } from './api-client.service';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  token: string;
-  user: any;
-}
+import { LoginRequest, LoginResponse } from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  public userToken = signal<string | null>(null); 
-  public userData = signal<any | null>(null);     
+  public userToken = signal<string | null>(null);
+  public userData = signal<any | null>(null);
 
-  constructor(private api: ApiClientService) {}
+  constructor(private api: ApiClientService) {
+    this.loadToken();
+  }
 
-  login(payload: LoginRequest) {
-    this.api.request('/auth/login', {
+  async login(payload: LoginRequest): Promise<LoginResponse> {
+    // skipAuth para evitar enviar Authorization en la petición de login
+    const res = await this.api.requestAndSet<any>('/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: payload,
+      skipAuth: true
     });
 
-    return this.api.apiResource.value; 
+    // res ahora es normalizado por ApiClientService: debería ser datos: { token, rol } -> normalized to { token, rol }
+    if ((res as any)?.error) {
+      return { error: (res as any).error?.errorBody ?? (res as any).error ?? 'Login failed' };
+    }
+
+    const token = (res as any)?.token ?? null;
+    const rol = (res as any)?.rol ?? (res as any)?.role ?? null;
+
+    if (token) {
+      this.saveToken(token);
+      this.userData.set({ rol });
+      return { token, user: this.userData(), rol };
+    }
+
+    return { error: 'Respuesta inesperada del servidor' };
   }
 
   saveToken(token: string) {

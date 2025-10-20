@@ -6,6 +6,6 @@ export interface LoginRequest {
 export interface LoginResponse {
   token?: string;
   user?: any;
-  rol?: string;
+  rol?: string | null;
   error?: string;
 }

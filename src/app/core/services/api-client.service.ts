@@ -3,7 +3,7 @@ import { HttpClient, HttpParams, HttpHeaders, HttpErrorResponse } from '@angular
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { RequestParams } from '../models/api.models';
-import { AuthService } from './auth.service'; // solo para tipos
+import { AuthService } from './auth.service'; 
 
 @Injectable({ providedIn: 'root' })
 export class ApiClientService {
@@ -50,15 +50,17 @@ export class ApiClientService {
   }
 
   private normalizeBackend<T>(raw: any): T | { error: any } {
-    if (!raw) return { error: 'Empty response' };
-    // Backend structure: { mensaje, estado, datos, codigo }
-    if (raw.estado && raw.datos !== undefined) {
-      // devolver datos directamente
+    if (raw == null) return { error: 'Empty response' };
+
+    // Si tu backend envuelve la respuesta con { estado, datos } adaptalo aquí
+    if (raw.estado !== undefined && raw.datos !== undefined) {
       return raw.datos as T;
     }
-    // Si backend devuelve directamente el objeto esperado
-    if (raw.token || raw.error || raw.rol) return raw as T;
-    // Por defecto devolver raw
+
+    // Respuestas directas: token, rol, error, etc.
+    if (raw.token || raw.error || raw.rol || raw.id) return raw as T;
+
+    // Por defecto devolver raw (asumimos que ya es el DTO)
     return raw as T;
   }
 
@@ -73,6 +75,7 @@ export class ApiClientService {
       headers = headers.set('Content-Type', 'application/json');
     }
 
+    // añadir Authorization de forma perezosa para evitar dependencia circular
     const token = this.getAuthToken(options?.skipAuth);
     if (token && !headers.has('Authorization')) {
       headers = headers.set('Authorization', `Bearer ${token}`);
@@ -100,18 +103,17 @@ export class ApiClientService {
           catchError((err: HttpErrorResponse) => of(this.formatError(err)))
         );
       case 'POST':
-        // enviamos objeto (no stringify) y normalizamos la respuesta
-        return this.http.post(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
+        return this.http.post<T>(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
           map(res => this.normalizeBackend<T>(res)),
           catchError((err: HttpErrorResponse) => of(this.formatError(err)))
         );
       case 'PUT':
-        return this.http.put(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
+        return this.http.put<T>(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
           map(res => this.normalizeBackend<T>(res)),
           catchError((err: HttpErrorResponse) => of(this.formatError(err)))
         );
       case 'PATCH':
-        return this.http.patch(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
+        return this.http.patch<T>(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
           map(res => this.normalizeBackend<T>(res)),
           catchError((err: HttpErrorResponse) => of(this.formatError(err)))
         );

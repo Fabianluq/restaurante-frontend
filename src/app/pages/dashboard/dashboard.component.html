@@ -1,9 +1,25 @@
-<!-- dashboard.component.html -->
-<header class="dashboard-header">
-  <h1>Dashboard</h1>
+<!-- Si hay datos de usuario -->
+<div class="header-right" *ngIf="auth.userData() as user; else maybeError">
+  <div class="user-info">
+    <span class="user-name"><strong>{{ user.nombre }} {{ user.apellido }}</strong></span>
+    <span class="user-email">{{ user.correo }}</span>
+    <span class="user-role">Rol: <strong>{{ user.rol }}</strong></span>
+  </div>
   <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
-</header>
-<div style="text-align:center; margin-top:2rem;">
-  <h1>Bienvenido al Dashboard</h1>
-  <p>Esta es la vista principal después del login.</p>
 </div>
+
+<ng-template #maybeError>
+  <div *ngIf="auth.userError() as err; else loadingBlock" class="user-error">
+    <div class="user-info-missing">
+      <p><strong>Error al cargar información de usuario:</strong></p>
+      <pre>{{ err }}</pre>
+      <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #loadingBlock>
+  <div class="user-loading">
+    <p>Cargando información del usuario...</p>
+  </div>
+</ng-template>

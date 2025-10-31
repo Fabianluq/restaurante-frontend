@@ -1,13 +1,13 @@
 :root{
-  --primary:#ff7a18;
-  --primary-dark:#e06a10;
+  --primary:#667eea;
+  --primary-dark:#5a6fd8;
   --muted:#6b7280;
-  --bg:#f7f8fa;
+  --bg:linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   --card:#ffffff;
-  --accent:#ffd9c2;
+  --accent:#e8f4fd;
 }
 
-*{box-sizing:border-box;font-family:Inter, Roboto, system-ui, Arial, sans-serif}
+*{box-sizing:border-box;font-family:'Roboto', sans-serif}
 
 .appbar{
   display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:linear-gradient(90deg,var(--card),#fff);
@@ -28,7 +28,23 @@
 .email{font-size:12px;color:var(--muted)}
 .role{font-size:12px;color:var(--muted)}
 
-.logout{background:transparent;border:1px solid #ddd;padding:6px 10px;border-radius:8px;cursor:pointer}
+.logout {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.logout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+  background: linear-gradient(135deg, #ee5a52 0%, #dc4545 100%);
+}
 .logout.small{font-size:13px}
 
 .no-user{display:flex;align-items:center;gap:12px}
@@ -41,7 +57,52 @@
 .welcome h1{margin:0;font-size:28px}
 .lead{color:var(--muted);margin-top:4px}
 
-.user-card, .welcome-card, .user-error-card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(31,41,55,0.04)}
+.user-card, .welcome-card, .user-error-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 20px 0;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.user-email, .user-role {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin: 2px 0;
+}
 .user-main{display:flex;align-items:center;gap:18px}
 .user-details h2{margin:0}
 .muted{color:var(--muted)}
@@ -61,3 +122,83 @@
 .status.active{background:#e6fff6;color:#0b6b3a}
 .loading{padding:18px;text-align:center;color:var(--muted)}
 .empty{padding:18px;text-align:center;color:var(--muted)}
+
+.navigation {
+  padding: 30px;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.nav-button {
+  margin: 15px;
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.nav-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.user-loading-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 20px auto;
+  max-width: 400px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-loading-card mat-spinner {
+  margin-bottom: 0;
+}
+
+.user-loading-card p {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Dashboard layout enhancements */
+.dashboard{padding:20px}
+.welcome-card{display:flex;align-items:center;justify-content:space-between;margin:20px 0}
+.welcome-left{display:flex;gap:16px;align-items:center}
+.welcome-actions{display:flex;gap:10px}
+.welcome-actions .logout{display:flex;align-items:center;gap:8px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:10px}
+.stat-card{padding:16px}
+.stat-card .stat-title{display:flex;align-items:center;gap:8px;color:#6b7280;font-weight:500}
+.stat-card .stat-value{font-size:32px;font-weight:700;margin-top:8px;color:#111}
+.stat-card .stat-hint{font-size:12px;color:#9ca3af}
+.stat-card.alt .stat-value{color:#334155}
+
+@media (max-width: 768px){
+  .stats-grid{grid-template-columns:1fr}
+  .welcome-card{flex-direction:column;align-items:stretch}
+  .welcome-actions{justify-content:flex-start;flex-wrap:wrap}
+}
+
+/* Appbar minimal */
+.appbar{display:flex;justify-content:space-between;padding:0 12px;background:#fff;color:#111;border-bottom:1px solid #eee}
+.appbar .brand{font-weight:700;margin-right:8px}
+.appbar-left{display:flex;align-items:center;gap:6px}
+.appbar-right{display:flex;align-items:center;gap:8px}

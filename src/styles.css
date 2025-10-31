@@ -1,1 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Default to Material Icons Outlined for a more modern, pro look */
+.mat-icon {
+  font-family: 'Material Icons Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* default size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utilities to switch style per-icon when needed */
+.mat-icon.filled { font-family: 'Material Icons' !important; }
+.mat-icon.round { font-family: 'Material Icons Round' !important; }

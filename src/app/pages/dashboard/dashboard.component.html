@@ -1,25 +1,21 @@
-<!-- Si hay datos de usuario -->
-<div class="header-right" *ngIf="auth.userData() as user; else maybeError">
-  <div class="user-info">
-    <span class="user-name"><strong>{{ user.nombre }} {{ user.apellido }}</strong></span>
-    <span class="user-email">{{ user.correo }}</span>
-    <span class="user-role">Rol: <strong>{{ user.rol }}</strong></span>
+<mat-toolbar class="appbar" color="primary">
+  <div class="appbar-left">
+    <span class="brand">Restaurapp</span>
+    <button mat-button routerLink="/dashboard"><mat-icon>space_dashboard</mat-icon> Dashboard</button>
+    <button mat-button routerLink="/empleados"><mat-icon>groups</mat-icon> Empleados</button>
+    <!-- Agregaremos más botones en el futuro -->
   </div>
-  <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
-</div>
+  <div class="appbar-right" *ngIf="auth.userData() as user; else maybeError">
+    <button mat-button (click)="goToProfile()">
+      <mat-icon>account_circle</mat-icon>
+      <span>{{ user.nombre }} {{ user.apellido }}</span>
+    </button>
+    <button mat-stroked-button color="warn" (click)="logout()"><mat-icon>logout</mat-icon> Salir</button>
+  </div>
+</mat-toolbar>
 
 <ng-template #maybeError>
-  <div *ngIf="auth.userError() as err; else loadingBlock" class="user-error">
-    <div class="user-info-missing">
-      <p><strong>Error al cargar información de usuario:</strong></p>
-      <pre>{{ err }}</pre>
-      <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #loadingBlock>
-  <div class="user-loading">
-    <p>Cargando información del usuario...</p>
+  <div class="appbar-right">
+    <button mat-stroked-button color="primary" (click)="logout()"><mat-icon>login</mat-icon> Iniciar sesión</button>
   </div>
 </ng-template>

@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../../core/services/auth.service';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { EmpleadoResponse } from '../../core/models/empleado.models';
@@ -8,7 +13,7 @@ import { EmpleadoResponse } from '../../core/models/empleado.models';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatCardModule, MatToolbarModule, RouterModule],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
@@ -33,18 +38,29 @@ export class DashboardComponent implements OnInit {
 
   async loadEmpleados() {
     this.loadingEmpleados = true;
-    const res = await this.api.requestAndSet<EmpleadoResponse[]>('/empleados', { method: 'GET' });
-    this.loadingEmpleados = false;
+    try {
+      const res = await this.api.requestAndSet<EmpleadoResponse[]>('/empleados', { method: 'GET' });
 
-    if ((res as any)?.error) {
-      console.warn('[Dashboard] error cargando empleados:', (res as any).error);
-      return;
+      if ((res as any)?.error) {
+        console.warn('[Dashboard] error cargando empleados:', (res as any).error);
+        this.empleados = [];
+        return;
+      }
+
+      this.empleados = res as EmpleadoResponse[];
+    } catch (error) {
+      console.error('[Dashboard] error de conexión:', error);
+      this.empleados = [];
+    } finally {
+      this.loadingEmpleados = false;
     }
-
-    this.empleados = res as EmpleadoResponse[];
   }
 
   goToAdd() {
     void this.router.navigate(['/empleados/add']);
+  }
+
+  goToProfile() {
+    void this.router.navigate(['/perfil']);
   }
 }

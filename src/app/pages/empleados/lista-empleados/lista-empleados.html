@@ -1,0 +1,93 @@
+<div class="container">
+  <h2>Lista de Empleados</h2>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando empleados...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="cargarEmpleados()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !error">
+    <div class="list-actions" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+      <mat-form-field appearance="outline" style="min-width:260px;flex:1">
+        <mat-label>Buscar empleados</mat-label>
+        <input matInput (input)="applyFilter($event.target.value)" placeholder="Nombre, correo, rol...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="btn-add" (click)="crearEmpleado()">
+        <mat-icon>add</mat-icon>
+        Nuevo Empleado
+      </button>
+    </div>
+
+    <table mat-table [dataSource]="empleados" matSort class="mat-elevation-z8">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+        <td mat-cell *matCellDef="let empleado">{{ empleado.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+        <td mat-cell *matCellDef="let empleado">{{ empleado.nombre }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="apellido">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Apellido</th>
+        <td mat-cell *matCellDef="let empleado">{{ empleado.apellido }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="correo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Correo</th>
+        <td mat-cell *matCellDef="let empleado">{{ empleado.correo }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="telefono">
+        <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+        <td mat-cell *matCellDef="let empleado">{{ empleado.telefono || '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="rol">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Rol</th>
+        <td mat-cell *matCellDef="let empleado">{{ empleado.rol }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let empleado">
+          <button mat-stroked-button color="primary" class="btn-edit" (click)="editarEmpleado(empleado)">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+          <button mat-stroked-button color="warn" class="btn-delete" (click)="eliminarEmpleado(empleado)">
+            <mat-icon>delete</mat-icon>
+            Eliminar
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator [pageSize]="10" [pageSizeOptions]="[5,10,25]" showFirstLastButtons></mat-paginator>
+
+    <!-- Empty state -->
+    <div *ngIf="empleados.data.length === 0" class="empty-state">
+      <mat-icon>people_outline</mat-icon>
+      <h3>No hay empleados registrados</h3>
+      <p>Comienza creando el primer empleado del sistema.</p>
+    </div>
+  </div>
+</div>

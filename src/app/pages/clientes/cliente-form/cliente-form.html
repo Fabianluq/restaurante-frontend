@@ -1,0 +1,53 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>{{ isEdit ? 'Editar Cliente' : 'Crear Cliente' }}</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" required>
+            <mat-error *ngIf="form.get('nombre')?.hasError('required')">El nombre es requerido</mat-error>
+            <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">Mínimo 2 caracteres</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellido">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Correo</mat-label>
+            <input matInput type="email" formControlName="correo" required>
+            <mat-error *ngIf="form.get('correo')?.hasError('required')">El correo es requerido</mat-error>
+            <mat-error *ngIf="form.get('correo')?.hasError('email')">Ingrese un correo válido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput type="tel" inputmode="numeric" formControlName="telefono" maxlength="12" placeholder="Ej: 3001234567">
+            <mat-hint align="start">10 a 12 dígitos (opcional)</mat-hint>
+            <mat-error *ngIf="form.get('telefono')?.hasError('minlength')">Debe tener al menos 10 dígitos</mat-error>
+            <mat-error *ngIf="form.get('telefono')?.hasError('maxlength')">No debe exceder 12 dígitos</mat-error>
+            <mat-error *ngIf="form.get('telefono')?.hasError('pattern')">Solo dígitos (puede iniciar con +)</mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Dirección</mat-label>
+          <input matInput formControlName="direccion">
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving || form.invalid">
+            {{ saving ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear') }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

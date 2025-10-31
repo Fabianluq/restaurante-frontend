@@ -1,9 +1,9 @@
 import {
-  BidiModule
-} from "./chunk-ZQAFUDQN.js";
-import {
   _CdkPrivateStyleLoader
 } from "./chunk-6ZUIGG7Z.js";
+import {
+  BidiModule
+} from "./chunk-ZQAFUDQN.js";
 import {
   Platform,
   coerceElement,
@@ -68,6 +68,7 @@ import {
 } from "./chunk-WDMUDEB6.js";
 
 // node_modules/@angular/cdk/fesm2022/keycodes2.mjs
+var BACKSPACE = 8;
 var TAB = 9;
 var ENTER = 13;
 var SHIFT = 16;
@@ -83,6 +84,7 @@ var LEFT_ARROW = 37;
 var UP_ARROW = 38;
 var RIGHT_ARROW = 39;
 var DOWN_ARROW = 40;
+var DELETE = 46;
 var ZERO = 48;
 var NINE = 57;
 var A = 65;
@@ -2365,6 +2367,25 @@ var ListKeyManager = class {
   }
 };
 
+// node_modules/@angular/cdk/fesm2022/focus-key-manager.mjs
+var FocusKeyManager = class extends ListKeyManager {
+  _origin = "program";
+  /**
+   * Sets the focus origin that will be passed in to the items for any subsequent `focus` calls.
+   * @param origin Focus origin to be used when focusing items.
+   */
+  setFocusOrigin(origin) {
+    this._origin = origin;
+    return this;
+  }
+  setActiveItem(item) {
+    super.setActiveItem(item);
+    if (this.activeItem) {
+      this.activeItem.focus(this._origin);
+    }
+  }
+};
+
 // node_modules/@angular/cdk/fesm2022/activedescendant-key-manager.mjs
 var ActiveDescendantKeyManager = class extends ListKeyManager {
   setActiveItem(index) {
@@ -3098,11 +3119,10 @@ var MatCommonModule = class _MatCommonModule {
 })();
 
 export {
-  normalizePassiveListenerOptions,
-  _getFocusedElementPierceShadowDom,
-  _getEventTarget,
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader,
+  BACKSPACE,
+  TAB,
   ENTER,
   ESCAPE,
   SPACE,
@@ -3110,7 +3130,11 @@ export {
   UP_ARROW,
   RIGHT_ARROW,
   DOWN_ARROW,
+  DELETE,
   A,
+  _getFocusedElementPierceShadowDom,
+  _getEventTarget,
+  normalizePassiveListenerOptions,
   FocusMonitor,
   _VisuallyHiddenLoader,
   coerceArray,
@@ -3124,9 +3148,10 @@ export {
   _IdGenerator,
   hasModifierKey,
   ActiveDescendantKeyManager,
+  FocusKeyManager,
   addAriaReferencedId,
   removeAriaReferencedId,
   AriaDescriber,
   MatCommonModule
 };
-//# sourceMappingURL=chunk-J434F7NB.js.map
+//# sourceMappingURL=chunk-QJPMBGXH.js.map

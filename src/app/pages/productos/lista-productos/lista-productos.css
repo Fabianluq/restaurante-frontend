@@ -1,0 +1,6 @@
+.container{padding:20px}
+.bar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.loading,.error{text-align:center;margin:12px 0}
+table{width:100%}
+
+

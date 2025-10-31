@@ -1,0 +1,39 @@
+<div class="menu-container">
+  <div class="menu-header">
+    <h1>Nuestro Menú</h1>
+    <p class="subtitle">Disfruta de nuestros deliciosos platos</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando menú...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="categorias">
+    <div *ngFor="let grupo of productosPorCategoria" class="categoria-section">
+      <div class="categoria-header">
+        <h2>{{ grupo.categoria }}</h2>
+      </div>
+      <div class="productos-grid">
+        <mat-card *ngFor="let producto of grupo.productos" class="producto-card">
+          <mat-card-content>
+            <div class="producto-header">
+              <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+              <span class="producto-precio">{{ producto.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+            </div>
+            <p class="producto-descripcion" *ngIf="producto.descripcion">{{ producto.descripcion }}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error && productosPorCategoria.length === 0" class="empty">
+    <p>No hay productos disponibles en el menú.</p>
+  </div>
+</div>
+

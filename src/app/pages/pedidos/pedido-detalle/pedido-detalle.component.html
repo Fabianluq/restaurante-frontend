@@ -1,0 +1,51 @@
+<div class="detalle-container">
+  <div class="header">
+    <h2>Detalle del Pedido #{{ pedido.id }}</h2>
+    <button mat-icon-button (click)="cerrar()"><mat-icon>close</mat-icon></button>
+  </div>
+
+  <mat-card class="info-card">
+    <div class="info-row">
+      <div><strong>Fecha:</strong> {{ pedido.fechaPedido }}</div>
+      <div><strong>Hora:</strong> {{ pedido.horaPedido }}</div>
+    </div>
+    <div class="info-row">
+      <div><strong>Empleado:</strong> {{ pedido.empleadoNombre || pedido.empleado || '-' }}</div>
+      <div><strong>Cliente:</strong> {{ pedido.clienteNombre || '-' }}</div>
+    </div>
+    <div class="info-row">
+      <div><strong>Estado:</strong> <mat-chip>{{ pedido.estado }}</mat-chip></div>
+      <div *ngIf="pedido.mesaCapacidad"><strong>Mesa:</strong> Capacidad {{ pedido.mesaCapacidad }}</div>
+    </div>
+  </mat-card>
+
+  <mat-card class="detalles-card">
+    <h3>Productos</h3>
+    <table class="detalles-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unit.</th>
+          <th>Estado</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let detalle of pedido.detalles">
+          <td>{{ detalle.nombreProducto }}</td>
+          <td>{{ detalle.cantidad }}</td>
+          <td>{{ detalle.precioUnitario | currency:'COP':'symbol':'1.0-0' }}</td>
+          <td><mat-chip [color]="getEstadoColor(detalle.estadoDetalle)">{{ detalle.estadoDetalle }}</mat-chip></td>
+          <td>{{ detalle.totalDetalle | currency:'COP':'symbol':'1.0-0' }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="4"><strong>Total</strong></td>
+          <td><strong>{{ getTotal() | currency:'COP':'symbol':'1.0-0' }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </mat-card>
+</div>

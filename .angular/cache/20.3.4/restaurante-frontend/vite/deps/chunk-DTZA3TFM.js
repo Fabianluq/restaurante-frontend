@@ -3,12 +3,10 @@ import {
 } from "./chunk-46HAYV32.js";
 import {
   _animationsDisabled
-} from "./chunk-STFMYBAZ.js";
+} from "./chunk-MK5T3C6L.js";
 import {
-  MatCommonModule,
-  ObserversModule,
   _IdGenerator
-} from "./chunk-J434F7NB.js";
+} from "./chunk-QJPMBGXH.js";
 import {
   Directionality
 } from "./chunk-ZQAFUDQN.js";
@@ -29,7 +27,6 @@ import {
   Injectable,
   InjectionToken,
   Input,
-  NgModule,
   NgZone,
   Renderer2,
   RendererFactory2,
@@ -54,8 +51,6 @@ import {
   ɵɵdefineComponent,
   ɵɵdefineDirective,
   ɵɵdefineInjectable,
-  ɵɵdefineInjector,
-  ɵɵdefineNgModule,
   ɵɵdomElement,
   ɵɵdomElementEnd,
   ɵɵdomElementStart,
@@ -1640,30 +1635,6 @@ var MatFormField = class _MatFormField {
   });
 })();
 
-// node_modules/@angular/material/fesm2022/form-field-module.mjs
-var MatFormFieldModule = class _MatFormFieldModule {
-  static ɵfac = function MatFormFieldModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatFormFieldModule)();
-  };
-  static ɵmod = ɵɵdefineNgModule({
-    type: _MatFormFieldModule,
-    imports: [MatCommonModule, ObserversModule, MatFormField, MatLabel, MatError, MatHint, MatPrefix, MatSuffix],
-    exports: [MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix, MatCommonModule]
-  });
-  static ɵinj = ɵɵdefineInjector({
-    imports: [MatCommonModule, ObserversModule, MatFormField, MatCommonModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatFormFieldModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatCommonModule, ObserversModule, MatFormField, MatLabel, MatError, MatHint, MatPrefix, MatSuffix],
-      exports: [MatFormField, MatLabel, MatHint, MatError, MatPrefix, MatSuffix, MatCommonModule]
-    }]
-  }], null, null);
-})();
-
 export {
   MatLabel,
   MAT_ERROR,
@@ -1679,7 +1650,6 @@ export {
   getMatFormFieldMissingControlError,
   MAT_FORM_FIELD,
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
-  MatFormField,
-  MatFormFieldModule
+  MatFormField
 };
-//# sourceMappingURL=chunk-MXYXJ4BV.js.map
+//# sourceMappingURL=chunk-DTZA3TFM.js.map

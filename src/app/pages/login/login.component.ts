@@ -17,20 +17,14 @@ export class LoginComponent {
   errorMessage = signal<string | null>(null);
   loading = signal(false);
 
-    constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      correo: ['', [Validators.required, Validators.email]],
-      contrasenia: ['', Validators.required],
-    });
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  this.loginForm = this.fb.group({ correo: ['', [Validators.required, Validators.email]], contrasenia: ['', Validators.required] });
 
-    if (this.auth.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
-    }
+  if (this.auth.isAuthenticated()) {
+    void this.router.navigate(['/dashboard']);
   }
+}
+
 
 
   get correo() { return this.loginForm.get('correo'); }

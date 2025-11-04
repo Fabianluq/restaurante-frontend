@@ -1,0 +1,28 @@
+<div class="container">
+  <div class="kpis">
+    <mat-card class="kpi"><div class="title"><mat-icon>list_alt</mat-icon> Pedidos totales</div><div class="value">{{ total }}</div></mat-card>
+    <mat-card class="kpi"><div class="title"><mat-icon>schedule</mat-icon> En curso</div><div class="value">{{ enCurso }}</div></mat-card>
+    <mat-card class="kpi"><div class="title"><mat-icon>check_circle</mat-icon> Completados</div><div class="value">{{ completados }}</div></mat-card>
+  </div>
+
+  <mat-card>
+    <div class="header">
+      <h2>Pedidos recientes</h2>
+    </div>
+    <div *ngIf="loading" class="loading"><mat-spinner diameter="40"></mat-spinner></div>
+    <div *ngIf="error && !loading" class="error">{{ error }}</div>
+    <table mat-table [dataSource]="pedidos" class="mat-elevation-z1" *ngIf="!loading && !error">
+      <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let p">{{ p.id }}</td></ng-container>
+      <ng-container matColumnDef="empleado"><th mat-header-cell *matHeaderCellDef>Empleado</th><td mat-cell *matCellDef="let p">{{ p.empleadoNombre || p.empleado || '-' }}</td></ng-container>
+      <ng-container matColumnDef="mesa"><th mat-header-cell *matHeaderCellDef>Número de Mesa</th><td mat-cell *matCellDef="let p">{{ p.numeroMesa || (p.mesaNumero ? 'Mesa ' + p.mesaNumero : '-') }}</td></ng-container>
+      <ng-container matColumnDef="estado"><th mat-header-cell *matHeaderCellDef>Estado</th><td mat-cell *matCellDef="let p">{{ p.estado }}</td></ng-container>
+      <ng-container matColumnDef="total"><th mat-header-cell *matHeaderCellDef>Total</th><td mat-cell *matCellDef="let p">${{ getTotal(p) | number:'1.0-0' }}</td></ng-container>
+      <ng-container matColumnDef="hora"><th mat-header-cell *matHeaderCellDef>Hora</th><td mat-cell *matCellDef="let p">{{ p.horaPedido }}</td></ng-container>
+      <ng-container matColumnDef="acciones"><th mat-header-cell *matHeaderCellDef>Acciones</th><td mat-cell *matCellDef="let p"><button mat-stroked-button color="primary" (click)="verDetalle(p)"><mat-icon>visibility</mat-icon> Ver</button></td></ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card>
+</div>
+
+

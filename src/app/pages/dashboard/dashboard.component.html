@@ -1,9 +1,26 @@
-<!-- dashboard.component.html -->
-<header class="dashboard-header">
-  <h1>Dashboard</h1>
-  <button type="button" class="logout-button" (click)="logout()">Cerrar sesión</button>
-</header>
-<div style="text-align:center; margin-top:2rem;">
-  <h1>Bienvenido al Dashboard</h1>
-  <p>Esta es la vista principal después del login.</p>
-</div>
+<mat-toolbar class="appbar" color="primary">
+  <div class="appbar-left">
+    <span class="brand">Restaurapp</span>
+    <button mat-button routerLink="/dashboard"><mat-icon>space_dashboard</mat-icon> Dashboard</button>
+    <button mat-button routerLink="/empleados"><mat-icon>groups</mat-icon> Empleados</button>
+    <button mat-button routerLink="/roles"><mat-icon>admin_panel_settings</mat-icon> Roles</button>
+    <button mat-button routerLink="/pedidos/monitor"><mat-icon>monitor</mat-icon> Pedidos</button>
+    <button mat-button routerLink="/productos"><mat-icon>inventory_2</mat-icon> Productos</button>
+    <button mat-button routerLink="/clientes"><mat-icon>people</mat-icon> Clientes</button>
+    <button mat-button routerLink="/mesas"><mat-icon>table_restaurant</mat-icon> Mesas</button>
+    <button mat-button routerLink="/menu"><mat-icon>restaurant_menu</mat-icon> Menú</button>
+  </div>
+  <div class="appbar-right" *ngIf="auth.userData() as user; else maybeError">
+    <button mat-button (click)="goToProfile()">
+      <mat-icon>account_circle</mat-icon>
+      <span>{{ user.nombre }} {{ user.apellido }}</span>
+    </button>
+    <button mat-stroked-button color="warn" (click)="logout()"><mat-icon>logout</mat-icon> Salir</button>
+  </div>
+</mat-toolbar>
+
+<ng-template #maybeError>
+  <div class="appbar-right">
+    <button mat-stroked-button color="primary" (click)="logout()"><mat-icon>login</mat-icon> Iniciar sesión</button>
+  </div>
+</ng-template>

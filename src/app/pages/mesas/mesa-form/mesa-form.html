@@ -1,0 +1,46 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>{{ isEdit ? 'Editar Mesa' : 'Crear Mesa' }}</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Número de Mesa</mat-label>
+            <input matInput formControlName="numero" required>
+            <mat-error *ngIf="form.get('numero')?.hasError('required')">El número es requerido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Capacidad</mat-label>
+            <input matInput type="number" formControlName="capacidad" required>
+            <mat-error *ngIf="form.get('capacidad')?.hasError('required')">La capacidad es requerida</mat-error>
+            <mat-error *ngIf="form.get('capacidad')?.hasError('min')">Mínimo 1 persona</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="estado" required>
+              <mat-option *ngFor="let e of estados" [value]="e">{{ e }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('estado')?.hasError('required')">El estado es requerido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Ubicación</mat-label>
+            <input matInput formControlName="ubicacion" placeholder="Ej: Terraza, Interior">
+          </mat-form-field>
+        </div>
+
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving || form.invalid">
+            {{ saving ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear') }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

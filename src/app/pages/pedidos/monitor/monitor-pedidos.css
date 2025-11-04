@@ -1,0 +1,11 @@
+.container{padding:20px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.kpi{padding:12px}
+.kpi .title{display:flex;align-items:center;gap:8px;color:#6b7280}
+.kpi .value{font-size:28px;font-weight:700;color:#111}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.loading,.error{text-align:center;margin:12px 0}
+table{width:100%}
+@media (max-width: 900px){.kpis{grid-template-columns:1fr}}
+
+

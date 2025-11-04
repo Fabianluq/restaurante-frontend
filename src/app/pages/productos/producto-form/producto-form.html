@@ -1,0 +1,31 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>{{ isEdit ? 'Editar Producto' : 'Crear Producto' }}</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" required>
+          <mat-error *ngIf="form.get('nombre')?.hasError('required')">Requerido</mat-error>
+          <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">Mínimo 3 caracteres</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Descripción</mat-label>
+          <input matInput formControlName="descripcion">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Precio</mat-label>
+          <input matInput type="number" formControlName="precio" required>
+          <mat-error *ngIf="form.get('precio')?.hasError('required')">Requerido</mat-error>
+          <mat-error *ngIf="form.get('precio')?.hasError('min')">Debe ser positivo</mat-error>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-stroked-button type="button" (click)="cancel()">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving || form.invalid">{{ saving ? 'Guardando...' : (isEdit ? 'Actualizar' : 'Crear') }}</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+

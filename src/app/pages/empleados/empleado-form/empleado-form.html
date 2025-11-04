@@ -1,0 +1,100 @@
+<div class="container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Editar Empleado' : 'Crear Empleado' }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading state -->
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Cargando datos del empleado...</p>
+      </div>
+
+      <!-- Form -->
+      <form *ngIf="!loading" [formGroup]="empleadoForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" required>
+            <mat-error *ngIf="empleadoForm.get('nombre')?.hasError('required')">
+              El nombre es requerido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellido" required>
+            <mat-error *ngIf="empleadoForm.get('apellido')?.hasError('required')">
+              El apellido es requerido
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Correo</mat-label>
+            <input matInput type="email" formControlName="correo" required>
+            <mat-error *ngIf="empleadoForm.get('correo')?.hasError('required')">
+              El correo es requerido
+            </mat-error>
+            <mat-error *ngIf="empleadoForm.get('correo')?.hasError('email')">
+              Ingrese un correo válido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput type="tel" inputmode="numeric" formControlName="telefono" maxlength="12" placeholder="Ej: 3001234567">
+            <mat-hint align="start">10 a 12 dígitos</mat-hint>
+            <mat-error *ngIf="empleadoForm.get('telefono')?.hasError('minlength')">
+              Debe tener al menos 10 dígitos
+            </mat-error>
+            <mat-error *ngIf="empleadoForm.get('telefono')?.hasError('maxlength')">
+              No debe exceder 12 dígitos
+            </mat-error>
+            <mat-error *ngIf="empleadoForm.get('telefono')?.hasError('pattern')">
+              Solo dígitos (puede iniciar con +) y entre 10 y 12
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Rol</mat-label>
+            <mat-select formControlName="rolId" required>
+              <mat-option *ngFor="let rol of roles" [value]="rol.id">
+                {{ rol.nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="empleadoForm.get('rolId')?.hasError('required')">
+              El rol es requerido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="!isEditMode">
+            <mat-label>Contraseña</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="contrasenia" required>
+            <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword" [attr.aria-label]="hidePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+              <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+            </button>
+            <mat-error *ngIf="empleadoForm.get('contrasenia')?.hasError('required')">
+              La contraseña es requerida
+            </mat-error>
+            <mat-error *ngIf="empleadoForm.get('contrasenia')?.hasError('minlength')">
+              La contraseña debe tener al menos 6 caracteres
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="actions">
+          <button mat-raised-button type="button" (click)="onCancel()" [disabled]="saving">Cancelar</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!empleadoForm.valid || saving">
+            <mat-spinner *ngIf="saving" diameter="20" class="spinner-button"></mat-spinner>
+            {{ saving ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear') }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

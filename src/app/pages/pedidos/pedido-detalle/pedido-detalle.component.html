@@ -15,7 +15,7 @@
     </div>
     <div class="info-row">
       <div><strong>Estado:</strong> <mat-chip>{{ pedido.estado }}</mat-chip></div>
-      <div *ngIf="pedido.mesaCapacidad"><strong>Mesa:</strong> Capacidad {{ pedido.mesaCapacidad }}</div>
+      <div *ngIf="pedido.mesaNumero"><strong>Mesa:</strong>{{ pedido.mesaNumero }}</div>
     </div>
   </mat-card>
 

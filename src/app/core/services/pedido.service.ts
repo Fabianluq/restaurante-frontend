@@ -21,8 +21,7 @@ export interface PedidoResponse {
   empleadoNombre?: string;
   empleado?: string; // Alias
   clienteNombre?: string;
-  mesaCapacidad?: number;
-  numeroMesa?: string; // Alias
+  mesaNumero?: number; // Alias
   detalles?: DetallePedido[];
   total?: number; // Calculado
 }
@@ -48,7 +47,7 @@ export class PedidoService {
           return apiRes.datos.map(p => ({
             ...p,
             empleado: p.empleadoNombre || p.empleado,
-            numeroMesa: p.mesaCapacidad ? `Mesa ${p.mesaCapacidad}` : undefined,
+            numeroMesa: p.mesaNumero ? `Mesa ${p.mesaNumero}` : undefined,
             total: p.detalles?.reduce((sum, d) => sum + d.totalDetalle, 0) || 0
           }));
         }
@@ -67,7 +66,7 @@ export class PedidoService {
           return {
             ...p,
             empleado: p.empleadoNombre || p.empleado,
-            numeroMesa: p.mesaCapacidad ? `Mesa ${p.mesaCapacidad}` : undefined,
+            numeroMesa: p.mesaNumero ? `Mesa ${p.mesaNumero}` : undefined,
             total: p.detalles?.reduce((sum, d) => sum + d.totalDetalle, 0) || 0
           };
         }

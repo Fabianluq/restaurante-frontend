@@ -21,7 +21,7 @@ export class MonitorPedidos implements OnInit, OnDestroy {
   loading = false;
   error: string | null = null;
   pedidos: PedidoResponse[] = [];
-  displayedColumns: string[] = ['id','empleado','estado','total','hora','acciones'];
+  displayedColumns: string[] = ['id','empleado','mesa','estado','total','hora','acciones'];
   private destroy$ = new Subject<void>();
 
   // KPIs

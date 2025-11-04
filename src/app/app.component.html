@@ -1,0 +1,32 @@
+<header class="app-header" *ngIf="auth.isAuthenticated()">
+  <div class="header-content">
+    <div class="header-brand">
+      <h1 class="app-title">RestaurApp</h1>
+    </div>
+    <div class="header-user">
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="user-btn">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item routerLink="/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </button>
+        <button mat-menu-item routerLink="/perfil">
+          <mat-icon>account_circle</mat-icon>
+          <span>Mi Perfil</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Cerrar Sesión</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</header>
+
+<main class="app-main" [class.with-header]="auth.isAuthenticated()">
+  <router-outlet></router-outlet>
+</main>
+

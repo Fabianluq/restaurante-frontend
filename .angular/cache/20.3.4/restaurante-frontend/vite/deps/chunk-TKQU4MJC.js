@@ -1,37 +1,37 @@
 import {
-  coerceCssPixelValue
-} from "./chunk-46HAYV32.js";
+  ScrollDispatcher,
+  ScrollingModule,
+  ViewportRuler
+} from "./chunk-IXHH7CU3.js";
 import {
   _isTestEnvironment
 } from "./chunk-VENV3F3G.js";
+import {
+  coerceCssPixelValue
+} from "./chunk-46HAYV32.js";
 import {
   ESCAPE,
   _IdGenerator,
   _getEventTarget,
   coerceArray,
   hasModifierKey
-} from "./chunk-QJPMBGXH.js";
+} from "./chunk-RHCBR5Z4.js";
 import {
   _CdkPrivateStyleLoader
 } from "./chunk-6ZUIGG7Z.js";
 import {
-  ScrollDispatcher,
-  ScrollingModule,
-  ViewportRuler
-} from "./chunk-VYEI3ACW.js";
-import {
   supportsScrollBehavior
 } from "./chunk-5EG33CFQ.js";
-import {
-  BidiModule,
-  Directionality
-} from "./chunk-ZQAFUDQN.js";
 import {
   Platform
 } from "./chunk-LXEZCJEI.js";
 import {
   Location
 } from "./chunk-5RGSSY6Z.js";
+import {
+  BidiModule,
+  Directionality
+} from "./chunk-ZQAFUDQN.js";
 import {
   ANIMATION_MODULE_TYPE,
   ApplicationRef,
@@ -3438,6 +3438,7 @@ export {
   ComponentPortal,
   TemplatePortal,
   BasePortalOutlet,
+  DomPortalOutlet,
   CdkPortalOutlet,
   PortalModule,
   createBlockScrollStrategy,
@@ -3452,4 +3453,4 @@ export {
   CdkConnectedOverlay,
   OverlayModule
 };
-//# sourceMappingURL=chunk-5NOLKFBK.js.map
+//# sourceMappingURL=chunk-TKQU4MJC.js.map

@@ -1,0 +1,116 @@
+<div class="container">
+  <div class="header">
+    <button mat-icon-button (click)="volver()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>Mi Perfil</h2>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+  <div *ngIf="error && !loading" class="error">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <mat-card *ngIf="empleado && !loading" class="profile-card">
+    <div class="profile-header">
+      <div class="avatar-large">
+        <span>{{ getIniciales() }}</span>
+      </div>
+      <div class="profile-info">
+        <h3>{{ empleado.nombre }} {{ empleado.apellido }}</h3>
+        <p class="role">{{ empleado.rol }}</p>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="profile-details">
+      <div class="detail-item">
+        <mat-icon>email</mat-icon>
+        <div class="detail-content">
+          <span class="label">Correo electrónico</span>
+          <span class="value">{{ empleado.correo }}</span>
+        </div>
+      </div>
+
+      <div class="detail-item" *ngIf="empleado.telefono">
+        <mat-icon>phone</mat-icon>
+        <div class="detail-content">
+          <span class="label">Teléfono</span>
+          <span class="value">{{ empleado.telefono }}</span>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <mat-icon>badge</mat-icon>
+        <div class="detail-content">
+          <span class="label">Rol</span>
+          <span class="value">{{ empleado.rol }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cambio de contraseña oculto por ahora -->
+    <!--
+    <mat-divider></mat-divider>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="toggleCambioContrasenia()">
+        <mat-icon>{{ mostrarCambioContrasenia ? 'lock' : 'lock_open' }}</mat-icon>
+        {{ mostrarCambioContrasenia ? 'Cancelar cambio' : 'Cambiar contraseña' }}
+      </button>
+    </div>
+
+    <div *ngIf="mostrarCambioContrasenia" class="change-password-section">
+      <h4>Cambiar contraseña</h4>
+      <form [formGroup]="cambioContraseniaForm" (ngSubmit)="cambiarContrasenia()">
+        <mat-form-field appearance="outline">
+          <mat-label>Contraseña actual</mat-label>
+          <input matInput type="password" formControlName="contraseniaActual" required>
+          <mat-icon matPrefix>lock</mat-icon>
+          <mat-error *ngIf="cambioContraseniaForm.get('contraseniaActual')?.hasError('required')">
+            La contraseña actual es requerida
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nueva contraseña</mat-label>
+          <input matInput type="password" formControlName="contraseniaNueva" required>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <mat-error *ngIf="cambioContraseniaForm.get('contraseniaNueva')?.hasError('required')">
+            La nueva contraseña es requerida
+          </mat-error>
+          <mat-error *ngIf="cambioContraseniaForm.get('contraseniaNueva')?.hasError('minlength')">
+            La contraseña debe tener al menos 6 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirmar nueva contraseña</mat-label>
+          <input matInput type="password" formControlName="contraseniaNuevaConfirmar" required>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <mat-error *ngIf="cambioContraseniaForm.get('contraseniaNuevaConfirmar')?.hasError('required')">
+            La confirmación es requerida
+          </mat-error>
+          <mat-error *ngIf="cambioContraseniaForm.hasError('mismatch')">
+            Las contraseñas no coinciden
+          </mat-error>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="cambiandoContrasenia || cambioContraseniaForm.invalid">
+            <mat-spinner *ngIf="cambiandoContrasenia" diameter="20" class="inline-spinner"></mat-spinner>
+            <mat-icon *ngIf="!cambiandoContrasenia">save</mat-icon>
+            {{ cambiandoContrasenia ? 'Guardando...' : 'Guardar contraseña' }}
+          </button>
+        </div>
+      </form>
+    </div>
+    -->
+  </mat-card>
+</div>
+

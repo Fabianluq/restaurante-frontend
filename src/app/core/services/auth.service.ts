@@ -22,7 +22,8 @@ export class AuthService {
     });
 
     if ((res as any)?.error) {
-      return { error: (res as any).error?.errorBody ?? (res as any).error ?? 'Login failed' };
+      const errorMessage = this.extractErrorMessage((res as any).error);
+      return { error: errorMessage };
     }
 
     const token = (res as any)?.token ?? null;
@@ -31,6 +32,41 @@ export class AuthService {
     this.saveToken(token);
     await this.initFromToken(token);
     return { token, user: this.userData(), rol: this.userRole() ?? this.userData()?.rol ?? null };
+  }
+
+  private extractErrorMessage(error: any): string {
+    // Si es un string, devolverlo directamente
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    // Si es un objeto, intentar extraer mensajes comunes
+    if (error && typeof error === 'object') {
+      // Buscar mensajes comunes en diferentes propiedades
+      if (error.message) return String(error.message);
+      if (error.errorBody?.message) return String(error.errorBody.message);
+      if (error.errorBody?.detail) return String(error.errorBody.detail);
+      if (error.errorBody?.title) return String(error.errorBody.title);
+      if (error.detail) return String(error.detail);
+      if (error.title) return String(error.title);
+      
+      // Si tiene status, usar mensajes específicos según el código
+      if (error.status) {
+        if (error.status === 401) {
+          return 'Credenciales inválidas. Verifica tu correo y contraseña.';
+        }
+        if (error.status === 403) {
+          return 'Acceso denegado.';
+        }
+        if (error.status >= 500) {
+          return 'Error del servidor. Intenta más tarde.';
+        }
+        return 'Error al iniciar sesión.';
+      }
+    }
+
+    // Mensaje por defecto
+    return 'Error al iniciar sesión.';
   }
 
   saveToken(token: string) {

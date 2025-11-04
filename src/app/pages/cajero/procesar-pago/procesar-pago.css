@@ -1,0 +1,33 @@
+.pedido-info {
+  background: var(--gray-50);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--gray-200);
+}
+
+.pedido-info p {
+  margin: var(--space-2) 0;
+  color: var(--gray-700);
+  font-size: 14px;
+}
+
+.pedido-info strong {
+  color: var(--gray-900);
+}
+
+.full {
+  width: 100%;
+  margin-bottom: var(--space-4);
+}
+
+.spinner-inline {
+  display: inline-block;
+  margin-right: var(--space-2);
+}
+
+mat-dialog-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+

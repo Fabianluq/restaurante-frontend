@@ -1,26 +1,151 @@
-<mat-toolbar class="appbar" color="primary">
-  <div class="appbar-left">
-    <span class="brand">Restaurapp</span>
-    <button mat-button routerLink="/dashboard"><mat-icon>space_dashboard</mat-icon> Dashboard</button>
-    <button mat-button routerLink="/empleados"><mat-icon>groups</mat-icon> Empleados</button>
-    <button mat-button routerLink="/roles"><mat-icon>admin_panel_settings</mat-icon> Roles</button>
-    <button mat-button routerLink="/pedidos/monitor"><mat-icon>monitor</mat-icon> Pedidos</button>
-    <button mat-button routerLink="/productos"><mat-icon>inventory_2</mat-icon> Productos</button>
-    <button mat-button routerLink="/clientes"><mat-icon>people</mat-icon> Clientes</button>
-    <button mat-button routerLink="/mesas"><mat-icon>table_restaurant</mat-icon> Mesas</button>
-    <button mat-button routerLink="/menu"><mat-icon>restaurant_menu</mat-icon> Menú</button>
-  </div>
-  <div class="appbar-right" *ngIf="auth.userData() as user; else maybeError">
-    <button mat-button (click)="goToProfile()">
-      <mat-icon>account_circle</mat-icon>
-      <span>{{ user.nombre }} {{ user.apellido }}</span>
-    </button>
-    <button mat-stroked-button color="warn" (click)="logout()"><mat-icon>logout</mat-icon> Salir</button>
-  </div>
-</mat-toolbar>
+<div class="dashboard-container">
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-subtitle" *ngIf="auth.userData() as user">
+        Bienvenido, {{ user.nombre }} {{ user.apellido }}
+      </p>
+    </div>
 
-<ng-template #maybeError>
-  <div class="appbar-right">
-    <button mat-stroked-button color="primary" (click)="logout()"><mat-icon>login</mat-icon> Iniciar sesión</button>
+    <!-- KPI Cards Row -->
+    <div class="kpi-row" *ngIf="auth.hasRole('ADMIN') && reporte">
+      <mat-card class="kpi-card">
+        <div class="kpi-content">
+          <div class="kpi-icon revenue">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <div class="kpi-text">
+            <span class="kpi-label">Ventas Hoy</span>
+            <h2 class="kpi-value">{{ formatearMoneda(reporte.ventasHoy) }}</h2>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <div class="kpi-content">
+          <div class="kpi-icon orders">
+            <mat-icon>receipt_long</mat-icon>
+          </div>
+          <div class="kpi-text">
+            <span class="kpi-label">Pedidos Hoy</span>
+            <h2 class="kpi-value">{{ reporte.pedidosHoy }}</h2>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <div class="kpi-content">
+          <div class="kpi-icon total">
+            <mat-icon>trending_up</mat-icon>
+          </div>
+          <div class="kpi-text">
+            <span class="kpi-label">Ventas Totales</span>
+            <h2 class="kpi-value">{{ formatearMoneda(reporte.ventasTotales) }}</h2>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <div class="kpi-content">
+          <div class="kpi-icon average">
+            <mat-icon>calculate</mat-icon>
+          </div>
+          <div class="kpi-text">
+            <span class="kpi-label">Promedio por Pedido</span>
+            <h2 class="kpi-value">{{ formatearMoneda(reporte.promedioPorPedido) }}</h2>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h2 class="section-title">Accesos Rápidos</h2>
+      <div class="actions-grid">
+        <a routerLink="/empleados" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>groups</mat-icon>
+          <span>Empleados</span>
+        </a>
+        <a routerLink="/productos" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>inventory_2</mat-icon>
+          <span>Productos</span>
+        </a>
+        <a routerLink="/pedidos/monitor" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Pedidos</span>
+        </a>
+        <a routerLink="/clientes" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>people</mat-icon>
+          <span>Clientes</span>
+        </a>
+        <a routerLink="/mesas" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>table_restaurant</mat-icon>
+          <span>Mesas</span>
+        </a>
+        <a routerLink="/reportes" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>bar_chart</mat-icon>
+          <span>Reportes</span>
+        </a>
+        <a routerLink="/menu" class="action-card">
+          <mat-icon>restaurant_menu</mat-icon>
+          <span>Menú</span>
+        </a>
+        <a routerLink="/roles" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Roles</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="recent-activity-section" *ngIf="auth.hasRole('ADMIN')">
+      <h2 class="section-title">Actividad Reciente</h2>
+      <mat-card class="activity-card">
+        <table mat-table [dataSource]="recentActivities" class="activity-table">
+          <ng-container matColumnDef="time">
+            <th mat-header-cell *matHeaderCellDef>Hora</th>
+            <td mat-cell *matCellDef="let activity">{{ activity.time }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="activity">
+            <th mat-header-cell *matHeaderCellDef>Actividad</th>
+            <td mat-cell *matCellDef="let activity">{{ activity.activity }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="details">
+            <th mat-header-cell *matHeaderCellDef>Detalles</th>
+            <td mat-cell *matCellDef="let activity">{{ activity.details }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="3">No hay actividades recientes</td>
+          </tr>
+        </table>
+      </mat-card>
+    </div>
+
+    <!-- Welcome Message for Non-Admin -->
+    <div class="welcome-section" *ngIf="!auth.hasRole('ADMIN')">
+      <mat-card class="welcome-card">
+        <mat-card-content>
+          <div class="welcome-content">
+            <mat-icon class="welcome-icon">restaurant</mat-icon>
+            <h2>¡Bienvenido a RestaurApp!</h2>
+            <p>Utiliza el menú de navegación para acceder a las funciones disponibles según tu rol.</p>
+            <div class="welcome-actions">
+              <button mat-raised-button color="primary" routerLink="/menu">
+                <mat-icon>restaurant_menu</mat-icon>
+                Ver Menú
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
-</ng-template>
+</div>

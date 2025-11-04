@@ -2,13 +2,13 @@ import {
   _CdkPrivateStyleLoader
 } from "./chunk-6ZUIGG7Z.js";
 import {
-  BidiModule
-} from "./chunk-ZQAFUDQN.js";
-import {
   Platform,
   coerceElement,
   coerceNumberProperty
 } from "./chunk-LXEZCJEI.js";
+import {
+  BidiModule
+} from "./chunk-ZQAFUDQN.js";
 import {
   APP_ID,
   CSP_NONCE,
@@ -67,6 +67,15 @@ import {
   __spreadValues
 } from "./chunk-WDMUDEB6.js";
 
+// node_modules/@angular/cdk/fesm2022/fake-event-detection.mjs
+function isFakeMousedownFromScreenReader(event) {
+  return event.buttons === 0 || event.detail === 0;
+}
+function isFakeTouchstartFromScreenReader(event) {
+  const touch = event.touches && event.touches[0] || event.changedTouches && event.changedTouches[0];
+  return !!touch && touch.identifier === -1 && (touch.radiusX == null || touch.radiusX === 1) && (touch.radiusY == null || touch.radiusY === 1);
+}
+
 // node_modules/@angular/cdk/fesm2022/keycodes2.mjs
 var BACKSPACE = 8;
 var TAB = 9;
@@ -91,15 +100,6 @@ var A = 65;
 var Z = 90;
 var META = 91;
 var MAC_META = 224;
-
-// node_modules/@angular/cdk/fesm2022/fake-event-detection.mjs
-function isFakeMousedownFromScreenReader(event) {
-  return event.buttons === 0 || event.detail === 0;
-}
-function isFakeTouchstartFromScreenReader(event) {
-  const touch = event.touches && event.touches[0] || event.changedTouches && event.changedTouches[0];
-  return !!touch && touch.identifier === -1 && (touch.radiusX == null || touch.radiusX === 1) && (touch.radiusY == null || touch.radiusY === 1);
-}
 
 // node_modules/@angular/cdk/fesm2022/shadow-dom.mjs
 var shadowDomIsSupported;
@@ -3132,6 +3132,7 @@ export {
   DOWN_ARROW,
   DELETE,
   A,
+  _getShadowRoot,
   _getFocusedElementPierceShadowDom,
   _getEventTarget,
   normalizePassiveListenerOptions,
@@ -3154,4 +3155,4 @@ export {
   AriaDescriber,
   MatCommonModule
 };
-//# sourceMappingURL=chunk-QJPMBGXH.js.map
+//# sourceMappingURL=chunk-RHCBR5Z4.js.map

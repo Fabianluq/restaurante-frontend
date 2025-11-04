@@ -8,14 +8,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductoResponse } from '../../../core/models/producto.models';
 import { ProductoService } from '../../../core/services/producto.service';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-lista-productos',
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatSnackBarModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatSnackBarModule, MatProgressSpinnerModule, MatDialogModule],
   templateUrl: './lista-productos.html',
   styleUrl: './lista-productos.css'
 })
@@ -25,7 +27,7 @@ export class ListaProductos implements OnInit, OnDestroy {
   loading = false; error: string | null = null; filterValue = '';
   private destroy$ = new Subject<void>();
 
-  constructor(private productoService: ProductoService, private router: Router, private snack: MatSnackBar) {}
+  constructor(private productoService: ProductoService, private router: Router, private snack: MatSnackBar, private dialog: MatDialog) {}
 
   ngOnInit(): void { this.cargar(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
@@ -45,13 +47,28 @@ export class ListaProductos implements OnInit, OnDestroy {
   crear() { this.router.navigate(['/productos/crear']); }
   editar(p: ProductoResponse) { this.router.navigate(['/productos/editar', p.id]); }
   eliminar(p: ProductoResponse) {
-    if (!confirm(`¿Eliminar producto "${p.nombre}"?`)) return;
-    this.productoService.eliminar(p.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        if ((res as any)?.error && (res as any).error !== 'Empty response') this.snack.open('No se pudo eliminar', 'Cerrar', { duration: 3000 });
-        else { this.snack.open('Producto eliminado', 'Cerrar', { duration: 2000 }); this.cargar(); }
-      },
-      error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+    const dialogData: ConfirmDialogData = {
+      message: `¿Eliminar producto "${p.nombre}"?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      type: 'delete'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: dialogData,
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.productoService.eliminar(p.id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (res) => {
+            if ((res as any)?.error && (res as any).error !== 'Empty response') this.snack.open('No se pudo eliminar', 'Cerrar', { duration: 3000 });
+            else { this.snack.open('Producto eliminado', 'Cerrar', { duration: 2000 }); this.cargar(); }
+          },
+          error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+        });
+      }
     });
   }
 

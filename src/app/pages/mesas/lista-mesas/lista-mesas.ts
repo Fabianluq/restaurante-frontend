@@ -11,14 +11,16 @@ import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { MesaResponse } from '../../../core/models/mesa.models';
 import { MesaService } from '../../../core/services/mesa.service';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-lista-mesas',
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatProgressSpinnerModule, MatChipsModule],
+  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatProgressSpinnerModule, MatChipsModule, MatDialogModule],
   templateUrl: './lista-mesas.html',
   styleUrl: './lista-mesas.css'
 })
@@ -33,7 +35,7 @@ export class ListaMesas implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 
-  constructor(private mesaService: MesaService, private router: Router, private snack: MatSnackBar) {}
+  constructor(private mesaService: MesaService, private router: Router, private snack: MatSnackBar, private dialog: MatDialog) {}
 
   ngOnInit(): void { this.cargar(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
@@ -60,13 +62,28 @@ export class ListaMesas implements OnInit, OnDestroy {
   editar(m: MesaResponse) { this.router.navigate(['/mesas/editar', m.id]); }
   
   eliminar(m: MesaResponse) {
-    if (!confirm(`¿Eliminar mesa "${m.numero}"?`)) return;
-    this.mesaService.eliminar(m.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        if ((res as any)?.error) this.snack.open('No se pudo eliminar la mesa', 'Cerrar', { duration: 3000 });
-        else { this.snack.open('Mesa eliminada', 'Cerrar', { duration: 2000 }); this.cargar(); }
-      },
-      error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+    const dialogData: ConfirmDialogData = {
+      message: `¿Eliminar mesa "${m.numero}"?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      type: 'delete'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: dialogData,
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.mesaService.eliminar(m.id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (res) => {
+            if ((res as any)?.error) this.snack.open('No se pudo eliminar la mesa', 'Cerrar', { duration: 3000 });
+            else { this.snack.open('Mesa eliminada', 'Cerrar', { duration: 2000 }); this.cargar(); }
+          },
+          error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+        });
+      }
     });
   }
 

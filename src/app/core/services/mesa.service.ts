@@ -33,5 +33,14 @@ export class MesaService {
   buscarPorId(id: number): Observable<MesaResponse | { error: any }> {
     return this.api.get<MesaResponse>(`/mesas/${id}`);
   }
+
+  ocuparMesa(mesaId: number, empleadoId: number): Observable<string | { error: any }> {
+    return this.api.put<string>(`/empleados/mesas/${mesaId}/ocupar?empleadoId=${empleadoId}`, {}).pipe(
+      map((res: any) => {
+        if ((res as any)?.error) return res;
+        return res || 'Mesa ocupada exitosamente';
+      })
+    );
+  }
 }
 

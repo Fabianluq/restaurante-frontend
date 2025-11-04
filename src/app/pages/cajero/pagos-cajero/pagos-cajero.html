@@ -1,0 +1,54 @@
+<div class="container">
+  <div class="header">
+    <h2>Pagos Pendientes</h2>
+    <p class="subtitle">Pedidos listos para procesar el pago</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  <div *ngIf="error && !loading" class="error">{{ error }}</div>
+
+  <table mat-table [dataSource]="pedidosListos" class="mat-elevation-z1" *ngIf="!loading && !error">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let p">{{ p.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="mesa">
+      <th mat-header-cell *matHeaderCellDef>Mesa</th>
+      <td mat-cell *matCellDef="let p">{{ p.numeroMesa || (p.mesaNumero ? 'Mesa ' + p.mesaNumero : '-') }}</td>
+    </ng-container>
+    <ng-container matColumnDef="cliente">
+      <th mat-header-cell *matHeaderCellDef>Cliente</th>
+      <td mat-cell *matCellDef="let p">{{ p.clienteNombre || '-' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="total">
+      <th mat-header-cell *matHeaderCellDef>Total</th>
+      <td mat-cell *matCellDef="let p">${{ getTotal(p) | number:'1.0-0' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="hora">
+      <th mat-header-cell *matHeaderCellDef>Hora</th>
+      <td mat-cell *matCellDef="let p">{{ p.horaPedido }}</td>
+    </ng-container>
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let p">
+        <button mat-stroked-button color="primary" (click)="verDetalle(p)" class="btn-action">
+          <mat-icon>visibility</mat-icon> Ver
+        </button>
+        <button mat-raised-button color="primary" (click)="procesarPago(p)" class="btn-action">
+          <mat-icon>payment</mat-icon> Cobrar
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <div *ngIf="!loading && !error && pedidosListos.length === 0" class="empty-state">
+    <mat-icon>payments</mat-icon>
+    <h3>No hay pedidos para cobrar</h3>
+    <p>No hay pedidos listos para procesar el pago en este momento.</p>
+  </div>
+</div>
+

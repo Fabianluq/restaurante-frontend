@@ -21,15 +21,37 @@ export interface PedidoResponse {
   empleadoNombre?: string;
   empleado?: string; // Alias
   clienteNombre?: string;
-  mesaNumero?: number; // Alias
+  mesaNumero?: number;
+  numeroMesa?: string; // Alias formateado
   detalles?: DetallePedido[];
   total?: number; // Calculado
+}
+
+export interface PedidoRequest {
+  clienteId?: number;
+  mesaId: number;
+  empleadoId: number;
+  detalles: DetallePedidoRequest[];
+  observaciones?: string;
+}
+
+export interface DetallePedidoRequest {
+  productoId: number;
+  cantidad: number;
+  observaciones?: string;
 }
 
 interface ApiResponse {
   mensaje?: string;
   estado?: string;
   datos?: PedidoResponse[];
+  codigo?: number;
+}
+
+interface ApiResponseSingle {
+  mensaje?: string;
+  estado?: string;
+  datos?: PedidoResponse;
   codigo?: number;
 }
 
@@ -57,12 +79,12 @@ export class PedidoService {
   }
 
   buscarPorId(id: number): Observable<PedidoResponse | { error: any }> {
-    return this.api.get<ApiResponse>(`/pedidos/${id}`).pipe(
+    return this.api.get<ApiResponseSingle>(`/pedidos/${id}`).pipe(
       map((res: any) => {
         if ((res as any)?.error) return res;
-        const apiRes = res as ApiResponse;
-        if (apiRes.datos && Array.isArray(apiRes.datos) && apiRes.datos.length > 0) {
-          const p = apiRes.datos[0];
+        const apiRes = res as ApiResponseSingle;
+        if (apiRes.datos) {
+          const p = apiRes.datos;
           return {
             ...p,
             empleado: p.empleadoNombre || p.empleado,
@@ -74,6 +96,71 @@ export class PedidoService {
       })
     );
   }
+
+  crear(pedido: PedidoRequest): Observable<PedidoResponse | { error: any }> {
+    return this.api.post<ApiResponseSingle>('/pedidos', pedido).pipe(
+      map((res: any) => {
+        if ((res as any)?.error) return res;
+        const apiRes = res as ApiResponseSingle;
+        if (apiRes.datos) {
+          const p = apiRes.datos;
+          return {
+            ...p,
+            empleado: p.empleadoNombre || p.empleado,
+            numeroMesa: p.mesaNumero ? `Mesa ${p.mesaNumero}` : undefined,
+            total: p.detalles?.reduce((sum, d) => sum + d.totalDetalle, 0) || 0
+          };
+        }
+        return { error: { message: 'Error al crear pedido' } } as any;
+      })
+    );
+  }
+
+  actualizar(id: number, pedido: PedidoRequest): Observable<PedidoResponse | { error: any }> {
+    return this.api.put<ApiResponseSingle>(`/pedidos/${id}`, pedido).pipe(
+      map((res: any) => {
+        if ((res as any)?.error) return res;
+        const apiRes = res as ApiResponseSingle;
+        if (apiRes.datos) {
+          const p = apiRes.datos;
+          return {
+            ...p,
+            empleado: p.empleadoNombre || p.empleado,
+            numeroMesa: p.mesaNumero ? `Mesa ${p.mesaNumero}` : undefined,
+            total: p.detalles?.reduce((sum, d) => sum + d.totalDetalle, 0) || 0
+          };
+        }
+        return { error: { message: 'Error al actualizar pedido' } } as any;
+      })
+    );
+  }
+
+  cambiarEstado(id: number, idEstado: number): Observable<PedidoResponse | { error: any }> {
+    return this.api.put<ApiResponseSingle>(`/pedidos/${id}/estado/${idEstado}`, {}).pipe(
+      map((res: any) => {
+        if ((res as any)?.error) return res;
+        const apiRes = res as ApiResponseSingle;
+        if (apiRes.datos) {
+          const p = apiRes.datos;
+          return {
+            ...p,
+            empleado: p.empleadoNombre || p.empleado,
+            numeroMesa: p.mesaNumero ? `Mesa ${p.mesaNumero}` : undefined,
+            total: p.detalles?.reduce((sum, d) => sum + d.totalDetalle, 0) || 0
+          };
+        }
+        return { error: { message: 'Error al cambiar estado' } } as any;
+      })
+    );
+  }
+
+  eliminar(id: number): Observable<{ ok: true } | { error: any }> {
+    return this.api.delete(`/pedidos/${id}`).pipe(
+      map((res: any) => {
+        if (res && res.error === 'Empty response') return { ok: true } as const;
+        if (res && res.error) return res;
+        return { ok: true } as const;
+      })
+    );
+  }
 }
-
-

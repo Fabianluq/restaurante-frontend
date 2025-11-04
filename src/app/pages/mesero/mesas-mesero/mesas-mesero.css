@@ -1,0 +1,134 @@
+.container {
+  padding: var(--space-6);
+  background: var(--gray-50);
+  min-height: calc(100vh - 64px);
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.header h2 {
+  color: var(--gray-900);
+  font-weight: 700;
+  font-size: 28px;
+  margin: 0 0 var(--space-2) 0;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--gray-500);
+  font-size: 14px;
+  margin: 0;
+}
+
+.loading,
+.error {
+  text-align: center;
+  margin: var(--space-6) 0;
+  padding: var(--space-10);
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+}
+
+.mesas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.mesa-card {
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.mesa-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.mesa-card.ocupada {
+  border-left: 4px solid var(--orange);
+}
+
+.mesa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.mesa-header h3 {
+  margin: 0;
+  color: var(--gray-900);
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.mesa-capacidad {
+  color: var(--gray-600);
+  font-size: 14px;
+  margin: 0 0 var(--space-4) 0;
+}
+
+.mesa-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  flex: 1;
+  min-width: 120px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-5);
+  text-align: center;
+  color: var(--gray-500);
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin: var(--space-6) 0;
+  border: 1px solid var(--gray-200);
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--space-5);
+  opacity: 0.4;
+  color: var(--gray-400);
+}
+
+.empty-state h3 {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--gray-700);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-4);
+  }
+  
+  .mesas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

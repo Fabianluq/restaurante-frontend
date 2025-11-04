@@ -1,0 +1,86 @@
+<div class="container">
+  <div class="header">
+    <h2>Vista de Cocina</h2>
+    <div class="filtros">
+      <button mat-stroked-button 
+              [class.active]="filtroEstado === 'TODOS'"
+              (click)="filtroEstado = 'TODOS'; cargar()">
+        Todos
+      </button>
+      <button mat-stroked-button 
+              [class.active]="filtroEstado === 'PENDIENTE'"
+              (click)="filtroEstado = 'PENDIENTE'; cargar()">
+        Pendientes
+      </button>
+      <button mat-stroked-button 
+              [class.active]="filtroEstado === 'EN_PREPARACION'"
+              (click)="filtroEstado = 'EN_PREPARACION'; cargar()">
+        En Preparación
+      </button>
+      <button mat-stroked-button 
+              [class.active]="filtroEstado === 'LISTO'"
+              (click)="filtroEstado = 'LISTO'; cargar()">
+        Listos
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  <div *ngIf="error && !loading" class="error">{{ error }}</div>
+
+  <table mat-table [dataSource]="getPedidosFiltrados()" class="mat-elevation-z1" *ngIf="!loading && !error">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let p">{{ p.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="mesa">
+      <th mat-header-cell *matHeaderCellDef>Mesa</th>
+      <td mat-cell *matCellDef="let p">{{ p.numeroMesa || (p.mesaNumero ? 'Mesa ' + p.mesaNumero : '-') }}</td>
+    </ng-container>
+    <ng-container matColumnDef="hora">
+      <th mat-header-cell *matHeaderCellDef>Hora</th>
+      <td mat-cell *matCellDef="let p">{{ p.horaPedido }}</td>
+    </ng-container>
+    <ng-container matColumnDef="productos">
+      <th mat-header-cell *matHeaderCellDef>Productos</th>
+      <td mat-cell *matCellDef="let p">{{ getProductosResumen(p.detalles) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="estado">
+      <th mat-header-cell *matHeaderCellDef>Estado</th>
+      <td mat-cell *matCellDef="let p">
+        <mat-chip [color]="getEstadoColor(p.estado)">{{ p.estado }}</mat-chip>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let p">
+        <button mat-stroked-button color="primary" (click)="verDetalle(p)" class="btn-action">
+          <mat-icon>visibility</mat-icon> Ver
+        </button>
+        <button mat-raised-button color="primary" 
+                *ngIf="p.estado?.toUpperCase() === 'PENDIENTE'"
+                (click)="cambiarEstado(p, 'EN_PREPARACION')"
+                class="btn-action">
+          <mat-icon>play_arrow</mat-icon> Iniciar
+        </button>
+        <button mat-raised-button color="accent" 
+                *ngIf="p.estado?.toUpperCase().includes('PREPARACION')"
+                (click)="cambiarEstado(p, 'LISTO')"
+                class="btn-action">
+          <mat-icon>check_circle</mat-icon> Listo
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <div *ngIf="!loading && !error && getPedidosFiltrados().length === 0" class="empty-state">
+    <mat-icon>restaurant_menu</mat-icon>
+    <h3>No hay pedidos</h3>
+    <p>No hay pedidos con el filtro seleccionado.</p>
+  </div>
+</div>
+

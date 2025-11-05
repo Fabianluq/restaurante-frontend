@@ -106,6 +106,7 @@ html, body {
   white-space: nowrap;
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
 
@@ -158,6 +159,17 @@ html, body {
 /* Form Fields - DISEÑO MODERNO SIN CUADRÍCULAS */
 .mat-mdc-form-field {
   width: 100%;
+  margin-bottom: 16px !important;
+  overflow: visible !important;
+}
+
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  overflow: visible !important;
+}
+
+.mat-mdc-form-field:not(.mat-form-field-no-animations) .mdc-text-field__input {
+  min-height: 40px !important;
+  height: 40px !important;
 }
 
 .mat-mdc-text-field-wrapper {
@@ -165,6 +177,19 @@ html, body {
   background-color: var(--gray-50) !important;
   border: 2px solid transparent !important;
   transition: all var(--transition) !important;
+  min-height: 56px !important;
+  padding: 0 !important;
+  height: auto !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.mat-mdc-text-field-wrapper .mdc-text-field {
+  padding: 0 !important;
+  min-height: 56px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .mat-mdc-text-field-wrapper:hover {
@@ -186,12 +211,112 @@ html, body {
 .mat-mdc-input-element {
   color: var(--gray-900) !important;
   font-size: 15px !important;
-  padding: 12px 16px !important;
+  padding: 12px 14px !important;
+  padding-right: 50px !important;
+  line-height: 1.5 !important;
 }
 
+.mat-mdc-text-field__input {
+  padding: 12px 14px !important;
+  padding-right: 50px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  line-height: 1.5 !important;
+}
+
+/* Reducir altura del label */
 .mat-mdc-form-field-label {
   color: var(--gray-600) !important;
   font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+.mat-mdc-form-field-label-wrapper {
+  padding-top: 0 !important;
+  top: 0 !important;
+}
+
+/* Asegurar que el label no se superponga con el placeholder */
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-text-field-wrapper {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mdc-text-field {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ajustar el label cuando está flotante - posición inicial cuando el campo está vacío */
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-form-field-label {
+  top: 20px !important;
+  left: 14px !important;
+  pointer-events: none;
+  position: absolute !important;
+  z-index: 0 !important;
+}
+
+/* Cuando el campo está enfocado o tiene valor, el label flota arriba */
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-focused .mat-mdc-form-field-label,
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-mdc-form-field-label {
+  top: -8px !important;
+  left: 14px !important;
+  transform: scale(0.85) translateY(0) !important;
+  background-color: var(--white) !important;
+  padding: 2px 8px !important;
+  z-index: 10 !important;
+  position: absolute !important;
+  white-space: nowrap !important;
+}
+
+/* Ajustar el notched outline para que el label tenga espacio cuando flota */
+.mat-mdc-form-field.mat-form-field-appearance-outline .mdc-notched-outline__notch {
+  border-top: none !important;
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mdc-notched-outline__notch {
+  border-top: 1px solid var(--primary) !important;
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Asegurar que el wrapper tenga suficiente padding superior cuando el label flota */
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-focused .mat-mdc-text-field-wrapper,
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-mdc-text-field-wrapper {
+  padding-top: 6px !important;
+  margin-top: 0 !important;
+  overflow: visible !important;
+}
+
+/* Asegurar que el contenedor del form field tenga espacio para el label flotante */
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-focused,
+.mat-mdc-form-field.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  overflow: visible !important;
+}
+
+/* Iconos en los form fields */
+.mat-mdc-form-field-icon-suffix {
+  padding-right: 12px !important;
+  padding-left: 8px !important;
+}
+
+.mat-mdc-form-field-icon-prefix {
+  padding-left: 12px !important;
+  padding-right: 8px !important;
+}
+
+.mat-mdc-form-field-icon-suffix .mat-icon,
+.mat-mdc-form-field-icon-prefix .mat-icon {
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .mat-mdc-form-field-focus-overlay {
@@ -406,6 +531,11 @@ html, body {
   background-color: #FEE2E2;
   border-radius: var(--radius);
   margin: var(--spacing-md) 0;
+  position: relative;
+  z-index: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .empty-state {

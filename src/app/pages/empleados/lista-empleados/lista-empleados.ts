@@ -73,9 +73,14 @@ export class ListaEmpleados implements OnInit, OnDestroy {
         next: (response) => {
           this.loading = false;
           if ('error' in response) {
-            this.error = response.error?.message || 'Error al cargar empleados';
+            // Formatear mensaje de error más amigable
+            let errorMessage = response.error?.message || 'Error al cargar empleados';
+            if (errorMessage.length > 100) {
+              errorMessage = 'Error al cargar empleados. Por favor, intenta nuevamente.';
+            }
+            this.error = errorMessage;
             console.error('Error al cargar empleados:', response.error);
-            this.snackBar.open(this.error!, 'Cerrar', { duration: 5000 });
+            this.snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
           } else {
             this.empleados.data = response;
             if (this.paginator) this.empleados.paginator = this.paginator;
@@ -84,9 +89,20 @@ export class ListaEmpleados implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.loading = false;
-          this.error = 'Error de conexión con el servidor';
+          // Formatear mensaje de error más amigable
+          let errorMessage = 'Error de conexión con el servidor';
+          if (err?.message) {
+            if (err.message.includes('Http failure response')) {
+              errorMessage = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet.';
+            } else if (err.message.includes('0 Unknown Error')) {
+              errorMessage = 'No se pudo conectar con el servidor. Verifica que el servidor esté disponible.';
+            } else {
+              errorMessage = err.message.length > 100 ? 'Error al cargar los datos. Intenta nuevamente.' : err.message;
+            }
+          }
+          this.error = errorMessage;
           console.error('Error de conexión:', err);
-          this.snackBar.open(this.error, 'Cerrar', { duration: 5000 });
+          this.snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
         }
       });
   }

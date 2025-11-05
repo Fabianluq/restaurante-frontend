@@ -107,6 +107,12 @@ table {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+/* Content wrapper para evitar superposiciones */
+.content-wrapper {
+  position: relative;
+  z-index: 0;
+}
+
 /* Loading and error states */
 .loading-container {
   display: flex;
@@ -119,6 +125,8 @@ table {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin: 20px 0;
+  position: relative;
+  z-index: 1;
 }
 
 .loading-container mat-spinner {
@@ -136,33 +144,50 @@ table {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 50px;
+  padding: 40px 30px;
   text-align: center;
   color: #EF4444;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin: 20px 0;
+  position: relative;
+  z-index: 1;
+  min-height: 200px;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  clear: both;
 }
 
 .error-container mat-icon {
-  font-size: 64px;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 20px;
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
   color: #EF4444;
+  flex-shrink: 0;
 }
 
 .error-container p {
-  font-size: 18px;
-  margin-bottom: 20px;
+  font-size: 16px;
+  margin: 0 0 24px 0;
   font-weight: 500;
+  max-width: 600px;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .error-container button {
-  margin-top: 20px;
+  margin-top: 0;
   background-color: #FF7A00 !important;
   color: #ffffff !important;
+  padding: 10px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
 /* Empty state */

@@ -21,16 +21,33 @@ import { MisPedidos } from './pages/mesero/mis-pedidos/mis-pedidos';
 import { PagosCajero } from './pages/cajero/pagos-cajero/pagos-cajero';
 import { PerfilComponent } from './pages/perfil/perfil.component';
 import { ReportesComponent } from './pages/reportes/reportes';
+import { RecuperarContraseniaComponent } from './pages/auth/recuperar-contrasenia/recuperar-contrasenia';
+import { ResetearContraseniaComponent } from './pages/auth/resetear-contrasenia/resetear-contrasenia';
 import { NoAuthGuard } from './core/guards/no-auth.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // ========================================
-  // RUTA PÚBLICA
+  // RUTAS PÚBLICAS (Sin autenticación)
   // ========================================
   {
     path: 'login',
     component: LoginComponent,
+    canActivate: [NoAuthGuard]
+  },
+  {
+    path: 'recuperar-contrasenia',
+    component: RecuperarContraseniaComponent,
+    canActivate: [NoAuthGuard]
+  },
+  {
+    path: 'resetear-contrasenia',
+    component: ResetearContraseniaComponent,
+    canActivate: [NoAuthGuard]
+  },
+  {
+    path: 'resetear-contrasenia/:token',
+    component: ResetearContraseniaComponent,
     canActivate: [NoAuthGuard]
   },
   

@@ -84,11 +84,24 @@ export class CrearPedido implements OnInit, OnDestroy {
   }
 
   cargarClientes(): void {
+    // Los MESEROs necesitan ver clientes para crear pedidos
+    // Si hay error 403, simplemente no mostrar clientes (opcional en el formulario)
     this.clienteService.listar().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         if (!(res as any)?.error) {
           this.clientes = res as ClienteResponse[];
+        } else {
+          const error = (res as any).error;
+          // Si es 403, solo mostrar advertencia pero no bloquear la aplicación
+          if (error?.status === 403) {
+            console.warn('[CrearPedido] No se tienen permisos para ver clientes. El campo será opcional.');
+            this.clientes = [];
+          }
         }
+      },
+      error: () => {
+        // Silenciar errores, el campo de cliente es opcional
+        this.clientes = [];
       }
     });
   }

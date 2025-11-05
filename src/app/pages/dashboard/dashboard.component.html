@@ -64,6 +64,7 @@
     <div class="quick-actions-section">
       <h2 class="section-title">Accesos Rápidos</h2>
       <div class="actions-grid">
+        <!-- ADMIN Actions -->
         <a routerLink="/empleados" class="action-card" *ngIf="auth.hasRole('ADMIN')">
           <mat-icon>groups</mat-icon>
           <span>Empleados</span>
@@ -74,7 +75,7 @@
         </a>
         <a routerLink="/pedidos/monitor" class="action-card" *ngIf="auth.hasRole('ADMIN')">
           <mat-icon>receipt_long</mat-icon>
-          <span>Pedidos</span>
+          <span>Monitor Pedidos</span>
         </a>
         <a routerLink="/clientes" class="action-card" *ngIf="auth.hasRole('ADMIN')">
           <mat-icon>people</mat-icon>
@@ -88,13 +89,45 @@
           <mat-icon>bar_chart</mat-icon>
           <span>Reportes</span>
         </a>
+        <a routerLink="/roles" class="action-card" *ngIf="auth.hasRole('ADMIN')">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Roles</span>
+        </a>
+        
+        <!-- COCINERO Actions -->
+        <a routerLink="/cocina" class="action-card" *ngIf="auth.hasRole('COCINERO')">
+          <mat-icon>restaurant</mat-icon>
+          <span>Vista Cocina</span>
+        </a>
+        
+        <!-- MESERO Actions -->
+        <a routerLink="/mesero/mesas" class="action-card" *ngIf="auth.hasRole('MESERO')">
+          <mat-icon>table_restaurant</mat-icon>
+          <span>Mesas</span>
+        </a>
+        <a routerLink="/mesero/pedidos/crear" class="action-card" *ngIf="auth.hasRole('MESERO')">
+          <mat-icon>add_shopping_cart</mat-icon>
+          <span>Crear Pedido</span>
+        </a>
+        <a routerLink="/mesero/pedidos" class="action-card" *ngIf="auth.hasRole('MESERO')">
+          <mat-icon>receipt_long</mat-icon>
+          <span>Mis Pedidos</span>
+        </a>
+        
+        <!-- CAJERO Actions -->
+        <a routerLink="/cajero/pagos" class="action-card" *ngIf="auth.hasRole('CAJERO')">
+          <mat-icon>payment</mat-icon>
+          <span>Procesar Pagos</span>
+        </a>
+        
+        <!-- Common Actions (All Roles) -->
         <a routerLink="/menu" class="action-card">
           <mat-icon>restaurant_menu</mat-icon>
           <span>Menú</span>
         </a>
-        <a routerLink="/roles" class="action-card" *ngIf="auth.hasRole('ADMIN')">
-          <mat-icon>admin_panel_settings</mat-icon>
-          <span>Roles</span>
+        <a routerLink="/perfil" class="action-card">
+          <mat-icon>account_circle</mat-icon>
+          <span>Mi Perfil</span>
         </a>
       </div>
     </div>
@@ -136,13 +169,21 @@
           <div class="welcome-content">
             <mat-icon class="welcome-icon">restaurant</mat-icon>
             <h2>¡Bienvenido a RestaurApp!</h2>
-            <p>Utiliza el menú de navegación para acceder a las funciones disponibles según tu rol.</p>
-            <div class="welcome-actions">
-              <button mat-raised-button color="primary" routerLink="/menu">
-                <mat-icon>restaurant_menu</mat-icon>
-                Ver Menú
-              </button>
-            </div>
+            <p *ngIf="auth.hasRole('COCINERO')">
+              Como cocinero, puedes ver y gestionar los pedidos pendientes. 
+              Usa la vista de cocina para cambiar el estado de los pedidos.
+            </p>
+            <p *ngIf="auth.hasRole('MESERO')">
+              Como mesero, puedes gestionar mesas, crear pedidos y ver tus pedidos asignados. 
+              Usa los accesos rápidos para comenzar.
+            </p>
+            <p *ngIf="auth.hasRole('CAJERO')">
+              Como cajero, puedes procesar pagos de pedidos listos. 
+              Usa la sección de pagos para cobrar a los clientes.
+            </p>
+            <p *ngIf="!auth.hasRole('COCINERO') && !auth.hasRole('MESERO') && !auth.hasRole('CAJERO')">
+              Utiliza el menú de navegación para acceder a las funciones disponibles según tu rol.
+            </p>
           </div>
         </mat-card-content>
       </mat-card>

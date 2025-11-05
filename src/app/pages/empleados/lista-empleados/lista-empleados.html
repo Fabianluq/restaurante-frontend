@@ -12,17 +12,16 @@
     <mat-icon color="warn">error</mat-icon>
     <p>{{ error }}</p>
     <button mat-raised-button color="primary" (click)="cargarEmpleados()">
-      <mat-icon>refresh</mat-icon>
       Reintentar
     </button>
   </div>
 
-  <!-- Content -->
-  <div *ngIf="!loading && !error">
+  <!-- Content - Solo se muestra si NO hay error y NO está cargando -->
+  <div *ngIf="!loading && !error" class="content-wrapper">
     <div class="list-actions" style="display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">
       <mat-form-field appearance="outline" style="min-width:260px;flex:1">
         <mat-label>Buscar empleados</mat-label>
-        <input matInput (input)="applyFilter($event.target.value)" placeholder="Nombre, correo, rol...">
+        <input matInput (input)="applyFilter($event.target.value)">
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
 

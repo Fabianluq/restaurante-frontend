@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 import { EmpleadoService } from '../../core/services/empleado.service';
 import { EmpleadoResponse } from '../../core/models/empleado.models';
+import { PasswordService } from '../../core/services/password.service';
 import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { NavigationService } from '../../core/services/navigation.service';
@@ -46,6 +47,7 @@ export class PerfilComponent implements OnInit, OnDestroy {
   constructor(
     private auth: AuthService,
     private empleadoService: EmpleadoService,
+    private passwordService: PasswordService,
     private fb: FormBuilder,
     private snack: MatSnackBar,
     private router: Router,
@@ -109,21 +111,33 @@ export class PerfilComponent implements OnInit, OnDestroy {
     }
 
     this.cambiandoContrasenia = true;
-    const user = this.auth.userData();
-    if (!user || !user.id) {
-      this.snack.open('Error: No se encontró información del usuario', 'Cerrar', { duration: 3000 });
-      this.cambiandoContrasenia = false;
-      return;
-    }
-
     const formValue = this.cambioContraseniaForm.value;
     
-    // TODO: Implementar endpoint de cambio de contraseña cuando esté disponible en el backend
-    // Por ahora mostramos un mensaje
-    this.snack.open('Funcionalidad de cambio de contraseña próximamente disponible', 'Cerrar', { duration: 3000 });
-    this.cambiandoContrasenia = false;
-    this.mostrarCambioContrasenia = false;
-    this.cambioContraseniaForm.reset();
+    this.passwordService.cambiarPassword(formValue.contraseniaActual, formValue.contraseniaNueva)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.cambiandoContrasenia = false;
+          if ((res as any)?.error) {
+            const error = (res as any).error;
+            let mensaje = 'Error al cambiar la contraseña';
+            if (error?.message) {
+              mensaje = error.message;
+            } else if (error?.errorBody?.message) {
+              mensaje = error.errorBody.message;
+            }
+            this.snack.open(mensaje, 'Cerrar', { duration: 4000 });
+          } else {
+            this.snack.open('Contraseña cambiada exitosamente', 'Cerrar', { duration: 3000 });
+            this.mostrarCambioContrasenia = false;
+            this.cambioContraseniaForm.reset();
+          }
+        },
+        error: () => {
+          this.cambiandoContrasenia = false;
+          this.snack.open('Error de conexión. Intenta nuevamente.', 'Cerrar', { duration: 3000 });
+        }
+      });
   }
 
   passwordsMatch(group: FormGroup): { [key: string]: boolean } | null {

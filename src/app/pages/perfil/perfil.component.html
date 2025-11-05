@@ -106,6 +106,9 @@
             <mat-icon *ngIf="!cambiandoContrasenia">save</mat-icon>
             {{ cambiandoContrasenia ? 'Guardando...' : 'Guardar contraseña' }}
           </button>
+          <div *ngIf="cambioContraseniaForm.invalid && cambioContraseniaForm.touched" class="form-validation-hint">
+            <small>Por favor completa todos los campos correctamente</small>
+          </div>
         </div>
       </form>
     </div>

@@ -1,0 +1,107 @@
+<div class="mis-reservas-container">
+  <div class="content-wrapper">
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>event</mat-icon>
+        <mat-card-title>Mis Reservas</mat-card-title>
+        <mat-card-subtitle>Consulta y gestiona tus reservas</mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+
+    <mat-card class="search-card">
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="buscarReservas()">
+          <div class="search-form">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Correo electrónico</mat-label>
+              <input matInput type="email" formControlName="correo" placeholder="ejemplo@correo.com">
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-error *ngIf="correo?.hasError('required')">
+                El correo es requerido
+              </mat-error>
+              <mat-error *ngIf="correo?.hasError('email')">
+                Ingresa un correo válido
+              </mat-error>
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="loading || form.invalid" class="btn-buscar">
+              <mat-icon *ngIf="!loading">search</mat-icon>
+              <mat-spinner *ngIf="loading" diameter="20" class="inline-spinner"></mat-spinner>
+              {{ loading ? 'Buscando...' : 'Buscar Reservas' }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <div *ngIf="error && !loading" class="error-container">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="mostrarReservas && !loading && !error">
+      <mat-card class="reservas-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>list</mat-icon>
+            Reservas encontradas ({{ reservas.length }})
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="reservas.length === 0" class="no-reservas">
+            <mat-icon>inbox</mat-icon>
+            <p>No tienes reservas registradas con este correo</p>
+            <a routerLink="/reservar" mat-raised-button color="primary">
+              <mat-icon>add</mat-icon>
+              Crear Nueva Reserva
+            </a>
+          </div>
+
+          <div *ngIf="reservas.length > 0" class="reservas-list">
+            <div *ngFor="let reserva of reservas" class="reserva-item">
+              <div class="reserva-info">
+                <div class="reserva-header">
+                  <h3>
+                    <mat-icon>restaurant</mat-icon>
+                    Reserva #{{ reserva.id }}
+                  </h3>
+                  <mat-chip [color]="getEstadoColor(reserva.estadoReserva || reserva.estado)">
+                    {{ reserva.estadoReserva || reserva.estado || 'Pendiente' }}
+                  </mat-chip>
+                </div>
+                <div class="reserva-details">
+                  <div class="detail-item">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span><strong>Fecha:</strong> {{ formatearFecha(reserva.fechaReserva) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>schedule</mat-icon>
+                    <span><strong>Hora:</strong> {{ reserva.horaReserva }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>people</mat-icon>
+                    <span><strong>Personas:</strong> {{ reserva.cantidadPersonas }}</span>
+                  </div>
+                  <div class="detail-item" *ngIf="reserva.mesaNumero">
+                    <mat-icon>table_restaurant</mat-icon>
+                    <span><strong>Mesa:</strong> #{{ reserva.mesaNumero }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="reserva-actions" *ngIf="puedeCancelar(reserva) || puedeConfirmar(reserva)">
+                <button mat-raised-button color="primary" (click)="confirmarReserva(reserva)" [disabled]="loading || !puedeConfirmar(reserva)" class="btn-confirmar">
+                  <mat-icon>check_circle</mat-icon>
+                  Confirmar
+                </button>
+                <button mat-raised-button color="warn" (click)="cancelarReserva(reserva)" [disabled]="loading || !puedeCancelar(reserva)" class="btn-cancelar">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
+

@@ -1,7 +1,26 @@
 <div class="menu-container">
   <div class="menu-header">
-    <h1>Nuestro Menú</h1>
-    <p class="subtitle">Disfruta de nuestros deliciosos platos</p>
+    <div class="header-content">
+      <h1>
+        <mat-icon>restaurant_menu</mat-icon>
+        Nuestro Menú
+      </h1>
+      <p class="subtitle">Disfruta de nuestros deliciosos platos</p>
+    </div>
+    <div class="menu-actions">
+      <a routerLink="/reservar" class="btn-reservar-menu">
+        <mat-icon>calendar_today</mat-icon>
+        Reservar Mesa
+      </a>
+      <button mat-stroked-button color="primary" class="btn-share-menu" (click)="compartirMenu()" title="Compartir menú">
+        <mat-icon>share</mat-icon>
+        Compartir Menú
+      </button>
+      <a routerLink="/" class="btn-home-menu">
+        <mat-icon>home</mat-icon>
+        Inicio
+      </a>
+    </div>
   </div>
 
   <div *ngIf="loading" class="loading">
@@ -10,29 +29,75 @@
   </div>
 
   <div *ngIf="error && !loading" class="error">
+    <mat-icon>error_outline</mat-icon>
     <p>{{ error }}</p>
   </div>
 
-  <div *ngIf="!loading && !error" class="categorias">
-    <div *ngFor="let grupo of productosPorCategoria" class="categoria-section">
-      <div class="categoria-header">
-        <h2>{{ grupo.categoria }}</h2>
+  <div *ngIf="!loading && !error && productosPorCategoria.length > 0" class="menu-content">
+    <!-- Filtros -->
+    <div class="filtros-section">
+      <!-- Buscador -->
+      <mat-form-field appearance="outline" class="buscador-field">
+        <mat-label>Buscar plato</mat-label>
+        <input matInput (input)="onBusquedaChange($any($event.target).value)" placeholder="Ej: Pizza, Pasta...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Filtros por categoría -->
+      <div class="categorias-filtros">
+        <mat-chip-listbox [(ngModel)]="categoriaSeleccionada" (change)="onCategoriaChange($event)" class="categoria-chips">
+          <mat-chip-option value="all">
+            <mat-icon>restaurant</mat-icon>
+            Todos
+          </mat-chip-option>
+          <mat-chip-option *ngFor="let categoria of categorias" [value]="categoria.nombre">
+            {{ categoria.nombre }}
+          </mat-chip-option>
+        </mat-chip-listbox>
       </div>
-      <div class="productos-grid">
-        <mat-card *ngFor="let producto of grupo.productos" class="producto-card">
-          <mat-card-content>
-            <div class="producto-header">
-              <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-              <span class="producto-precio">{{ producto.precio | currency:'COP':'symbol':'1.0-0' }}</span>
-            </div>
-            <p class="producto-descripcion" *ngIf="producto.descripcion">{{ producto.descripcion }}</p>
-          </mat-card-content>
-        </mat-card>
+    </div>
+
+    <!-- Productos por categoría -->
+    <div class="categorias">
+      <div *ngFor="let grupo of productosFiltrados" class="categoria-section">
+        <div class="categoria-header">
+          <h2>
+            <mat-icon>category</mat-icon>
+            {{ grupo.categoriaNombre }}
+          </h2>
+          <span class="productos-count">{{ grupo.productos.length }} {{ grupo.productos.length === 1 ? 'plato' : 'platos' }}</span>
+        </div>
+        <div class="productos-grid">
+          <mat-card *ngFor="let producto of grupo.productos" class="producto-card">
+            <mat-card-content>
+              <div class="producto-header">
+                <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+                <span class="producto-precio">{{ producto.precio | currency:'COP':'symbol':'1.0-0' }}</span>
+              </div>
+              <p class="producto-descripcion" *ngIf="producto.descripcion">{{ producto.descripcion }}</p>
+              <div class="producto-badge" *ngIf="producto.estado">
+                <mat-chip [color]="getEstadoColor(producto.estado)">
+                  {{ producto.estado }}
+                </mat-chip>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
       </div>
+    </div>
+
+    <!-- Mensaje si no hay resultados del filtro -->
+    <div *ngIf="productosFiltrados.length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>No se encontraron platos con los filtros seleccionados.</p>
+      <button mat-stroked-button (click)="seleccionarCategoria('all'); busqueda = ''; aplicarFiltros()">
+        Limpiar filtros
+      </button>
     </div>
   </div>
 
   <div *ngIf="!loading && !error && productosPorCategoria.length === 0" class="empty">
+    <mat-icon>inbox</mat-icon>
     <p>No hay productos disponibles en el menú.</p>
   </div>
 </div>

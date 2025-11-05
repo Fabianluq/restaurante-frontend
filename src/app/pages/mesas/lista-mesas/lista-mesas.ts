@@ -17,6 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { MesaResponse } from '../../../core/models/mesa.models';
 import { MesaService } from '../../../core/services/mesa.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
+import { QrDialogComponent } from '../../../shared/qr-dialog/qr-dialog';
 
 @Component({
   selector: 'app-lista-mesas',
@@ -60,6 +61,21 @@ export class ListaMesas implements OnInit, OnDestroy {
 
   crear() { this.router.navigate(['/mesas/crear']); }
   editar(m: MesaResponse) { this.router.navigate(['/mesas/editar', m.id]); }
+  
+  generarQR(mesa: MesaResponse): void {
+    const baseUrl = window.location.origin;
+    const qrUrl = `${baseUrl}/reservar-qr?mesa=${mesa.id}`;
+    
+    this.dialog.open(QrDialogComponent, {
+      width: '400px',
+      data: {
+        title: `QR para Mesa #${mesa.numero}`,
+        url: qrUrl,
+        mesaNumero: mesa.numero,
+        capacidad: mesa.capacidad
+      }
+    });
+  }
   
   eliminar(m: MesaResponse) {
     const dialogData: ConfirmDialogData = {

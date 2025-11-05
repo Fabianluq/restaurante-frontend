@@ -1,0 +1,55 @@
+<div class="qr-dialog">
+  <mat-card class="qr-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>qr_code</mat-icon>
+        {{ data.title }}
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="data.mesaNumero">
+        Mesa #{{ data.mesaNumero }} - Capacidad: {{ data.capacidad }} personas
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="qr-content">
+        <div *ngIf="loading" class="loading-qr">
+          <mat-icon>hourglass_empty</mat-icon>
+          <p>Generando código QR...</p>
+        </div>
+
+        <div *ngIf="!loading && qrImageUrl" class="qr-image-container">
+          <img [src]="qrImageUrl" alt="Código QR" class="qr-image">
+          <p class="qr-instructions">Escanea este código con tu teléfono para reservar</p>
+        </div>
+
+        <div *ngIf="!loading && !qrImageUrl" class="qr-error">
+          <mat-icon>error_outline</mat-icon>
+          <p>Error al generar el código QR</p>
+        </div>
+
+        <mat-form-field appearance="outline" class="url-field">
+          <mat-label>URL de reserva</mat-label>
+          <input matInput [value]="data.url" readonly>
+          <button mat-icon-button matSuffix (click)="copiarURL()" title="Copiar URL">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="descargarQR()" [disabled]="!qrImageUrl">
+        <mat-icon>download</mat-icon>
+        Descargar QR
+      </button>
+      <button mat-stroked-button (click)="copiarURL()">
+        <mat-icon>content_copy</mat-icon>
+        Copiar URL
+      </button>
+      <button mat-stroked-button (click)="cerrar()">
+        Cerrar
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+

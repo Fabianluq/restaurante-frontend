@@ -110,7 +110,21 @@ export class ApiClientService {
       case 'PUT':
         return this.http.put<T>(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(
           map(res => this.normalizeBackend<T>(res)),
-          catchError((err: HttpErrorResponse) => of(this.formatError(err)))
+          catchError((err: HttpErrorResponse) => {
+            // Log detallado para errores 403
+            if (err.status === 403) {
+              console.error('[API][403] Acceso denegado:', {
+                url: err.url,
+                status: err.status,
+                headers: {
+                  authorization: headers.get('Authorization') ? 'presente' : 'ausente',
+                  contentType: headers.get('Content-Type')
+                },
+                errorBody: err.error
+              });
+            }
+            return of(this.formatError(err));
+          })
         );
       case 'PATCH':
         return this.http.patch<T>(url, options?.body, { ...httpOptions, responseType: 'json' as const }).pipe(

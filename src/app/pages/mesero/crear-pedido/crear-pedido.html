@@ -5,8 +5,22 @@
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-row">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Mesa</mat-label>
-            <input matInput [value]="mesaSeleccionada ? 'Mesa ' + mesaSeleccionada.numero : ''" readonly>
+            <mat-label>Mesa *</mat-label>
+            <mat-select formControlName="mesaId" (selectionChange)="onMesaChange($event.value)" required>
+              <mat-option [value]="null">Seleccione una mesa</mat-option>
+              <mat-option *ngFor="let mesa of mesasDisponibles" [value]="mesa.id">
+                Mesa {{ mesa.numero }} - {{ mesa.estado }} (Capacidad: {{ mesa.capacidad }} personas)
+              </mat-option>
+            </mat-select>
+            <mat-hint *ngIf="mesasDisponibles.length === 0 && mesas.length > 0">
+              No hay mesas disponibles. Todas las mesas tienen pedidos activos o están ocupadas.
+            </mat-hint>
+            <mat-hint *ngIf="mesas.length === 0">
+              No hay mesas registradas en el sistema.
+            </mat-hint>
+            <mat-error *ngIf="form.get('mesaId')?.hasError('required') && form.get('mesaId')?.touched">
+              Debe seleccionar una mesa
+            </mat-error>
           </mat-form-field>
         </div>
 

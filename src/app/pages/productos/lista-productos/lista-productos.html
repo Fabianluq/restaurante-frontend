@@ -6,6 +6,10 @@
       <input matInput (input)="applyFilter($event.target.value)" placeholder="Nombre o categoría">
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
+    <button mat-raised-button color="accent" (click)="generarQRMenu()" title="Generar QR para el menú digital">
+      <mat-icon>qr_code</mat-icon>
+      QR Menú
+    </button>
     <button mat-raised-button color="primary" (click)="crear()"><mat-icon>add</mat-icon> Nuevo</button>
   </div>
 

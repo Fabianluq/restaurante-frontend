@@ -13,7 +13,8 @@ export interface ProductoRequest {
   nombre: string;
   descripcion?: string;
   precio: number;
-  categoriaId?: number;
+  categoriaId: number;
+  estadoId: number;
 }
 
 

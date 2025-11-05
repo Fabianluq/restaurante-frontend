@@ -10,25 +10,37 @@
   <div *ngIf="error && !loading" class="error">{{ error }}</div>
 
   <div class="mesas-grid" *ngIf="!loading && !error">
-    <mat-card *ngFor="let mesa of mesas" class="mesa-card" [class.ocupada]="(mesa.estado || '').toLowerCase().includes('ocupada')">
+    <mat-card *ngFor="let mesa of mesas" 
+              class="mesa-card" 
+              [class.ocupada]="(mesa.estado || '').toLowerCase().includes('ocupada')"
+              [class.con-pedido-activo]="tienePedidoActivo(mesa)">
       <mat-card-content>
         <div class="mesa-header">
           <h3>Mesa {{ mesa.numero }}</h3>
-          <mat-chip [color]="getEstadoColor(mesa.estado)">{{ mesa.estado }}</mat-chip>
+          <mat-chip [color]="tienePedidoActivo(mesa) ? 'warn' : getEstadoColor(mesa.estado)">
+            {{ getEstadoVisual(mesa) }}
+          </mat-chip>
         </div>
         <p class="mesa-capacidad">Capacidad: {{ mesa.capacidad }} personas</p>
+        <div *ngIf="tienePedidoActivo(mesa)" class="pedido-activo-info">
+          <mat-icon color="warn">info</mat-icon>
+          <span>Esta mesa tiene un pedido activo</span>
+        </div>
         <div class="mesa-actions">
           <button mat-raised-button color="primary" 
-                  *ngIf="!(mesa.estado || '').toLowerCase().includes('ocupada')"
+                  *ngIf="!(mesa.estado || '').toLowerCase().includes('ocupada') && !tienePedidoActivo(mesa)"
                   (click)="ocuparMesa(mesa)"
                   class="btn-action">
             <mat-icon>event_seat</mat-icon> Ocupar
           </button>
-          <button mat-raised-button color="primary" 
-                  *ngIf="puedeCrearPedido(mesa)"
+          <button mat-raised-button 
+                  [color]="tienePedidoActivo(mesa) ? 'warn' : 'primary'"
+                  [disabled]="tienePedidoActivo(mesa)"
+                  *ngIf="puedeCrearPedido(mesa) || tienePedidoActivo(mesa)"
                   (click)="crearPedido(mesa)"
                   class="btn-action">
-            <mat-icon>add_shopping_cart</mat-icon> Crear Pedido
+            <mat-icon>{{ tienePedidoActivo(mesa) ? 'block' : 'add_shopping_cart' }}</mat-icon>
+            {{ tienePedidoActivo(mesa) ? 'Pedido Activo' : 'Crear Pedido' }}
           </button>
         </div>
       </mat-card-content>

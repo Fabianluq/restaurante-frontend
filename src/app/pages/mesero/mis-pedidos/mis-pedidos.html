@@ -44,11 +44,16 @@
         <button mat-stroked-button color="primary" (click)="verDetalle(p)" class="btn-action">
           <mat-icon>visibility</mat-icon> Ver
         </button>
-        <button mat-raised-button color="accent" 
+        <button mat-raised-button 
                 *ngIf="puedeMarcarEntregado(p)"
                 (click)="marcarEntregado(p)"
-                class="btn-action">
-          <mat-icon>check_circle</mat-icon> Entregado
+                class="btn-action btn-verde">
+          <mat-icon>check_circle</mat-icon> Marcar como Entregado
+        </button>
+        <button mat-raised-button 
+                *ngIf="estaEntregado(p)"
+                class="btn-action btn-verde" disabled>
+          <mat-icon>done_all</mat-icon> Entregado
         </button>
       </td>
     </ng-container>

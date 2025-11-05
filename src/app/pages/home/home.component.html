@@ -1,0 +1,96 @@
+<div class="home-container">
+  <header class="home-header">
+    <div class="header-content">
+      <h1 class="app-title">
+        <mat-icon>restaurant</mat-icon>
+        RestaurApp
+      </h1>
+      <p class="app-subtitle">Tu restaurante favorito, ahora digital</p>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <section class="hero-section">
+      <mat-card class="hero-card">
+        <mat-card-content>
+          <div class="hero-content">
+            <h2>¡Bienvenido a RestaurApp!</h2>
+            <p>Reserva tu mesa ahora y disfruta de la mejor experiencia gastronómica</p>
+            
+            <div class="actions">
+              <button mat-raised-button color="primary" class="btn-reservar" routerLink="/reservar">
+                <mat-icon>calendar_today</mat-icon>
+                Reservar Mesa
+              </button>
+              
+              <button mat-raised-button color="accent" class="btn-menu" routerLink="/menu">
+                <mat-icon>restaurant_menu</mat-icon>
+                Ver Menú Digital
+              </button>
+              
+              <button mat-stroked-button color="primary" class="btn-mis-reservas" routerLink="/mis-reservas">
+                <mat-icon>event</mat-icon>
+                Mis Reservas
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="features-section">
+      <h3>¿Por qué elegir RestaurApp?</h3>
+      <div class="features-grid">
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <mat-icon>calendar_today</mat-icon>
+            <h4>Reserva Fácil</h4>
+            <p>Reserva tu mesa en segundos, sin complicaciones</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <mat-icon>restaurant_menu</mat-icon>
+            <h4>Menú Completo</h4>
+            <p>Consulta nuestro menú completo con todos los platos disponibles</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <mat-icon>schedule</mat-icon>
+            <h4>Horario Flexible</h4>
+            <p>Reserva con hasta 30 días de anticipación</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="feature-card">
+          <mat-card-content>
+            <mat-icon>verified</mat-icon>
+            <h4>Confirmación Inmediata</h4>
+            <p>Recibe confirmación por correo electrónico</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <section class="login-section">
+      <mat-card class="login-card">
+        <mat-card-content>
+          <h3>¿Eres empleado?</h3>
+          <p>Inicia sesión para acceder al sistema</p>
+          <button mat-raised-button color="accent" routerLink="/login">
+            <mat-icon>login</mat-icon>
+            Iniciar Sesión
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </main>
+
+  <footer class="home-footer">
+    <p>&copy; 2025 RestaurApp. Todos los derechos reservados.</p>
+  </footer>
+</div>
+

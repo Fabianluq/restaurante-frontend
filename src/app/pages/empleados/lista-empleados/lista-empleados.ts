@@ -15,6 +15,7 @@ import { EmpleadoService } from '../../../core/services/empleado.service';
 import { EmpleadoResponse } from '../../../core/models/empleado.models';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-lista-empleados',
@@ -72,9 +73,14 @@ export class ListaEmpleados implements OnInit, OnDestroy {
         next: (response) => {
           this.loading = false;
           if ('error' in response) {
-            this.error = response.error?.message || 'Error al cargar empleados';
+            // Formatear mensaje de error más amigable
+            let errorMessage = response.error?.message || 'Error al cargar empleados';
+            if (errorMessage.length > 100) {
+              errorMessage = 'Error al cargar empleados. Por favor, intenta nuevamente.';
+            }
+            this.error = errorMessage;
             console.error('Error al cargar empleados:', response.error);
-            this.snackBar.open(this.error!, 'Cerrar', { duration: 5000 });
+            this.snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
           } else {
             this.empleados.data = response;
             if (this.paginator) this.empleados.paginator = this.paginator;
@@ -83,9 +89,20 @@ export class ListaEmpleados implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.loading = false;
-          this.error = 'Error de conexión con el servidor';
+          // Formatear mensaje de error más amigable
+          let errorMessage = 'Error de conexión con el servidor';
+          if (err?.message) {
+            if (err.message.includes('Http failure response')) {
+              errorMessage = 'No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet.';
+            } else if (err.message.includes('0 Unknown Error')) {
+              errorMessage = 'No se pudo conectar con el servidor. Verifica que el servidor esté disponible.';
+            } else {
+              errorMessage = err.message.length > 100 ? 'Error al cargar los datos. Intenta nuevamente.' : err.message;
+            }
+          }
+          this.error = errorMessage;
           console.error('Error de conexión:', err);
-          this.snackBar.open(this.error, 'Cerrar', { duration: 5000 });
+          this.snackBar.open(errorMessage, 'Cerrar', { duration: 5000 });
         }
       });
   }
@@ -95,26 +112,40 @@ export class ListaEmpleados implements OnInit, OnDestroy {
   }
 
   eliminarEmpleado(empleado: EmpleadoResponse): void {
-    if (confirm(`¿Estás seguro de eliminar a ${empleado.nombre} ${empleado.apellido}?`)) {
-      this.empleadoService.eliminarEmpleado(empleado.id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            if ('error' in response) {
-              const errorMsg = response.error?.message || 'Error al eliminar empleado';
-              console.error('Error al eliminar empleado:', response.error);
-              this.snackBar.open(errorMsg, 'Cerrar', { duration: 5000 });
-            } else {
-              this.snackBar.open('Empleado eliminado exitosamente', 'Cerrar', { duration: 3000 });
-              this.cargarEmpleados();
+    const dialogData: ConfirmDialogData = {
+      message: `¿Estás seguro de eliminar a ${empleado.nombre} ${empleado.apellido}?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      type: 'delete'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: dialogData,
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.empleadoService.eliminarEmpleado(empleado.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (response) => {
+              if ('error' in response) {
+                const errorMsg = response.error?.message || 'Error al eliminar empleado';
+                console.error('Error al eliminar empleado:', response.error);
+                this.snackBar.open(errorMsg, 'Cerrar', { duration: 5000 });
+              } else {
+                this.snackBar.open('Empleado eliminado exitosamente', 'Cerrar', { duration: 3000 });
+                this.cargarEmpleados();
+              }
+            },
+            error: (err) => {
+              console.error('Error de conexión:', err);
+              this.snackBar.open('Error de conexión con el servidor', 'Cerrar', { duration: 5000 });
             }
-          },
-          error: (err) => {
-            console.error('Error de conexión:', err);
-            this.snackBar.open('Error de conexión con el servidor', 'Cerrar', { duration: 5000 });
-          }
-        });
-    }
+          });
+      }
+    });
   }
 
   crearEmpleado(): void {

@@ -14,92 +14,50 @@ import { ClienteForm } from './pages/clientes/cliente-form/cliente-form';
 import { ListaMesas } from './pages/mesas/lista-mesas/lista-mesas';
 import { MesaForm } from './pages/mesas/mesa-form/mesa-form';
 import { MenuComponent } from './pages/menu/menu.component';
+import { VistaCocina } from './pages/pedidos/vista-cocina/vista-cocina';
+import { MesasMesero } from './pages/mesero/mesas-mesero/mesas-mesero';
+import { CrearPedido } from './pages/mesero/crear-pedido/crear-pedido';
+import { MisPedidos } from './pages/mesero/mis-pedidos/mis-pedidos';
+import { PagosCajero } from './pages/cajero/pagos-cajero/pagos-cajero';
+import { PerfilComponent } from './pages/perfil/perfil.component';
+import { ReportesComponent } from './pages/reportes/reportes';
+import { RecuperarContraseniaComponent } from './pages/auth/recuperar-contrasenia/recuperar-contrasenia';
+import { ResetearContraseniaComponent } from './pages/auth/resetear-contrasenia/resetear-contrasenia';
 import { NoAuthGuard } from './core/guards/no-auth.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  // ========================================
+  // RUTAS PÚBLICAS (Sin autenticación)
+  // ========================================
   {
     path: 'login',
     component: LoginComponent,
     canActivate: [NoAuthGuard]
   },
   {
-    path: 'productos',
-    component: ListaProductos,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
+    path: 'recuperar-contrasenia',
+    component: RecuperarContraseniaComponent,
+    canActivate: [NoAuthGuard]
   },
   {
-    path: 'productos/crear',
-    component: ProductoForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
+    path: 'resetear-contrasenia',
+    component: ResetearContraseniaComponent,
+    canActivate: [NoAuthGuard]
   },
   {
-    path: 'productos/editar/:id',
-    component: ProductoForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
+    path: 'resetear-contrasenia/:token',
+    component: ResetearContraseniaComponent,
+    canActivate: [NoAuthGuard]
   },
+  
+  // ========================================
+  // RUTAS COMPARTIDAS (Todos los roles autenticados)
+  // ========================================
   {
-    path: 'pedidos/monitor',
-    component: MonitorPedidos,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'clientes',
-    component: ListaClientes,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'clientes/crear',
-    component: ClienteForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'clientes/editar/:id',
-    component: ClienteForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'mesas',
-    component: ListaMesas,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'mesas/crear',
-    component: MesaForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'mesas/editar/:id',
-    component: MesaForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'roles',
-    component: ListaRoles,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'roles/crear',
-    component: RolForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
-  },
-  {
-    path: 'roles/editar/:id',
-    component: RolForm,
-    canActivate: [AuthGuard],
-    data: { roles: ['ADMIN'] }
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'menu',
@@ -107,10 +65,15 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'dashboard',
-    component: DashboardComponent,
+    path: 'perfil',
+    component: PerfilComponent,
     canActivate: [AuthGuard]
   },
+  
+  // ========================================
+  // ROL: ADMIN - Control Total del Sistema
+  // ========================================
+  // Gestión de Empleados
   {
     path: 'empleados',
     component: ListaEmpleados,
@@ -129,6 +92,148 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['ADMIN'] }
   },
+  
+  // Gestión de Roles
+  {
+    path: 'roles',
+    component: ListaRoles,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'roles/crear',
+    component: RolForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'roles/editar/:id',
+    component: RolForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  
+  // Gestión de Productos
+  {
+    path: 'productos',
+    component: ListaProductos,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'productos/crear',
+    component: ProductoForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'productos/editar/:id',
+    component: ProductoForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  
+  // Gestión de Clientes
+  {
+    path: 'clientes',
+    component: ListaClientes,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'clientes/crear',
+    component: ClienteForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'clientes/editar/:id',
+    component: ClienteForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  
+  // Gestión de Mesas
+  {
+    path: 'mesas',
+    component: ListaMesas,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'mesas/crear',
+    component: MesaForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'mesas/editar/:id',
+    component: MesaForm,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  
+  // Monitor de Pedidos (vista completa para admin)
+  {
+    path: 'pedidos/monitor',
+    component: MonitorPedidos,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  
+  // Reportes y Estadísticas
+  {
+    path: 'reportes',
+    component: ReportesComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  
+  // ========================================
+  // ROL: COCINERO - Gestión de Cocina
+  // ========================================
+  {
+    path: 'cocina',
+    component: VistaCocina,
+    canActivate: [AuthGuard],
+    data: { roles: ['COCINERO'] }
+  },
+  
+  // ========================================
+  // ROL: MESERO - Gestión de Pedidos y Atención
+  // ========================================
+  {
+    path: 'mesero/mesas',
+    component: MesasMesero,
+    canActivate: [AuthGuard],
+    data: { roles: ['MESERO'] }
+  },
+  {
+    path: 'mesero/pedidos',
+    component: MisPedidos,
+    canActivate: [AuthGuard],
+    data: { roles: ['MESERO'] }
+  },
+  {
+    path: 'mesero/pedidos/crear',
+    component: CrearPedido,
+    canActivate: [AuthGuard],
+    data: { roles: ['MESERO'] }
+  },
+  
+  // ========================================
+  // ROL: CAJERO - Procesamiento de Pagos
+  // ========================================
+  {
+    path: 'cajero/pagos',
+    component: PagosCajero,
+    canActivate: [AuthGuard],
+    data: { roles: ['CAJERO'] }
+  },
+  
+  // ========================================
+  // RUTAS POR DEFECTO
+  // ========================================
   {
     path: '',
     pathMatch: 'full',

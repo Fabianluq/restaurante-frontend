@@ -1,0 +1,44 @@
+<div class="container">
+  <div class="header">
+    <h2>Mesas</h2>
+    <p class="subtitle">Selecciona una mesa para crear un pedido</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  <div *ngIf="error && !loading" class="error">{{ error }}</div>
+
+  <div class="mesas-grid" *ngIf="!loading && !error">
+    <mat-card *ngFor="let mesa of mesas" class="mesa-card" [class.ocupada]="(mesa.estado || '').toLowerCase().includes('ocupada')">
+      <mat-card-content>
+        <div class="mesa-header">
+          <h3>Mesa {{ mesa.numero }}</h3>
+          <mat-chip [color]="getEstadoColor(mesa.estado)">{{ mesa.estado }}</mat-chip>
+        </div>
+        <p class="mesa-capacidad">Capacidad: {{ mesa.capacidad }} personas</p>
+        <div class="mesa-actions">
+          <button mat-raised-button color="primary" 
+                  *ngIf="!(mesa.estado || '').toLowerCase().includes('ocupada')"
+                  (click)="ocuparMesa(mesa)"
+                  class="btn-action">
+            <mat-icon>event_seat</mat-icon> Ocupar
+          </button>
+          <button mat-raised-button color="primary" 
+                  *ngIf="puedeCrearPedido(mesa)"
+                  (click)="crearPedido(mesa)"
+                  class="btn-action">
+            <mat-icon>add_shopping_cart</mat-icon> Crear Pedido
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!loading && !error && mesas.length === 0" class="empty-state">
+    <mat-icon>table_restaurant</mat-icon>
+    <h3>No hay mesas disponibles</h3>
+    <p>No hay mesas registradas en el sistema.</p>
+  </div>
+</div>
+

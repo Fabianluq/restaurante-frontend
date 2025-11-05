@@ -26,6 +26,12 @@
         </p>
       </div>
 
+      <div class="forgot-password-link">
+        <a routerLink="/recuperar-contrasenia" class="forgot-link">
+          ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+
       <button type="submit" class="login-button" [disabled]="loading()">
         <ng-container *ngIf="loading(); else loginText">
           Cargando...

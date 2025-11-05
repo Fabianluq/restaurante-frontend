@@ -9,15 +9,17 @@ import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { ClienteResponse } from '../../../core/models/cliente.models';
 import { ClienteService } from '../../../core/services/cliente.service';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-lista-clientes',
-  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatTableModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatPaginatorModule, MatSortModule, MatSnackBarModule, MatProgressSpinnerModule, MatDialogModule],
   templateUrl: './lista-clientes.html',
   styleUrl: './lista-clientes.css'
 })
@@ -32,7 +34,7 @@ export class ListaClientes implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 
-  constructor(private clienteService: ClienteService, private router: Router, private snack: MatSnackBar) {}
+  constructor(private clienteService: ClienteService, private router: Router, private snack: MatSnackBar, private dialog: MatDialog) {}
 
   ngOnInit(): void { this.cargar(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
@@ -59,13 +61,28 @@ export class ListaClientes implements OnInit, OnDestroy {
   editar(c: ClienteResponse) { this.router.navigate(['/clientes/editar', c.id]); }
   
   eliminar(c: ClienteResponse) {
-    if (!confirm(`¿Eliminar cliente "${c.nombre} ${c.apellido || ''}"?`)) return;
-    this.clienteService.eliminar(c.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        if ((res as any)?.error) this.snack.open('No se pudo eliminar el cliente', 'Cerrar', { duration: 3000 });
-        else { this.snack.open('Cliente eliminado', 'Cerrar', { duration: 2000 }); this.cargar(); }
-      },
-      error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+    const dialogData: ConfirmDialogData = {
+      message: `¿Eliminar cliente "${c.nombre} ${c.apellido || ''}"?`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      type: 'delete'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: dialogData,
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.clienteService.eliminar(c.id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (res) => {
+            if ((res as any)?.error) this.snack.open('No se pudo eliminar el cliente', 'Cerrar', { duration: 3000 });
+            else { this.snack.open('Cliente eliminado', 'Cerrar', { duration: 2000 }); this.cargar(); }
+          },
+          error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+        });
+      }
     });
   }
 

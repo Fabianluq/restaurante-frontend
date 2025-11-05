@@ -22,7 +22,8 @@ export class AuthService {
     });
 
     if ((res as any)?.error) {
-      return { error: (res as any).error?.errorBody ?? (res as any).error ?? 'Login failed' };
+      const errorMessage = this.extractErrorMessage((res as any).error);
+      return { error: errorMessage };
     }
 
     const token = (res as any)?.token ?? null;
@@ -31,6 +32,41 @@ export class AuthService {
     this.saveToken(token);
     await this.initFromToken(token);
     return { token, user: this.userData(), rol: this.userRole() ?? this.userData()?.rol ?? null };
+  }
+
+  private extractErrorMessage(error: any): string {
+    // Si es un string, devolverlo directamente
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    // Si es un objeto, intentar extraer mensajes comunes
+    if (error && typeof error === 'object') {
+      // Buscar mensajes comunes en diferentes propiedades
+      if (error.message) return String(error.message);
+      if (error.errorBody?.message) return String(error.errorBody.message);
+      if (error.errorBody?.detail) return String(error.errorBody.detail);
+      if (error.errorBody?.title) return String(error.errorBody.title);
+      if (error.detail) return String(error.detail);
+      if (error.title) return String(error.title);
+      
+      // Si tiene status, usar mensajes específicos según el código
+      if (error.status) {
+        if (error.status === 401) {
+          return 'Credenciales inválidas. Verifica tu correo y contraseña.';
+        }
+        if (error.status === 403) {
+          return 'Acceso denegado.';
+        }
+        if (error.status >= 500) {
+          return 'Error del servidor. Intenta más tarde.';
+        }
+        return 'Error al iniciar sesión.';
+      }
+    }
+
+    // Mensaje por defecto
+    return 'Error al iniciar sesión.';
   }
 
   saveToken(token: string) {
@@ -99,6 +135,19 @@ export class AuthService {
     }
   }
 
+  private getDataFromToken(token: string): any | null {
+    const payload = this.decodePayload(token);
+    if (!payload) return null;
+    
+    return {
+      id: payload.id || payload.sub || payload.userId || null,
+      nombre: payload.nombre || payload.name || payload.firstName || null,
+      apellido: payload.apellido || payload.lastName || payload.surname || null,
+      correo: payload.correo || payload.email || null,
+      rol: payload.rol || payload.role || payload.authorities?.[0] || null
+    };
+  }
+
   private async initFromToken(token: string) {
     if (!this.isTokenValid(token)) {
       this.logout();
@@ -141,7 +190,52 @@ export class AuthService {
 
     if ((res as any)?.error) {
       const err = (res as any).error;
+      const status = err?.status || (typeof err === 'object' && err.status);
+      
+      // Si es 403, el backend está bloqueando el acceso. Intentar endpoint alternativo
+      if (status === 403) {
+        console.warn('[Auth] 403 Forbidden al obtener empleado, intentando endpoint alternativo...');
+        // Intentar con endpoint que permita obtener su propio perfil
+        try {
+          const altRes: any = await this.api.requestAndSet<EmpleadoResponse>(`/auth/me`, { method: 'GET' });
+          if (!(altRes as any)?.error) {
+            this.userError.set(null);
+            this.userData.set(altRes as EmpleadoResponse);
+            if (!this.userRole() && (altRes as EmpleadoResponse).rol) {
+              this.userRole.set((altRes as EmpleadoResponse).rol.toUpperCase());
+            }
+            return;
+          }
+        } catch (altErr) {
+          console.warn('[Auth] Endpoint alternativo también falló');
+        }
+      }
+      
       console.warn('[Auth] fetch error:', err);
+      // No bloquear la aplicación si hay error 403, solo mostrar advertencia
+      if (status === 403) {
+        console.warn('[Auth] El backend está bloqueando el acceso al perfil. Verifica la configuración de seguridad.');
+        // Mantener los datos del token si están disponibles
+        if (this.userToken()) {
+          // Intentar obtener datos del token mismo
+          const tokenData = this.getDataFromToken(this.userToken()!);
+          if (tokenData && tokenData.id) {
+            // Crear un objeto básico con los datos del token
+            this.userData.set({
+              id: tokenData.id,
+              nombre: tokenData.nombre || 'Usuario',
+              apellido: tokenData.apellido || '',
+              correo: tokenData.correo || '',
+              rol: tokenData.rol || 'USER'
+            } as EmpleadoResponse);
+            if (tokenData.rol) {
+              this.userRole.set(tokenData.rol.toUpperCase());
+            }
+            return;
+          }
+        }
+      }
+      
       this.userData.set(null);
       this.userError.set(
         err?.message ?? (typeof err === 'string' ? err : 'Error al obtener datos del usuario')
@@ -159,6 +253,23 @@ export class AuthService {
     console.log('[Auth] userData set:', this.userData());
   } catch (e: any) {
     console.error('[Auth] fetch failed', e);
+    // Si el token está disponible, intentar obtener datos básicos del token
+    if (this.userToken()) {
+      const tokenData = this.getDataFromToken(this.userToken()!);
+      if (tokenData && tokenData.id) {
+        this.userData.set({
+          id: tokenData.id,
+          nombre: tokenData.nombre || 'Usuario',
+          apellido: tokenData.apellido || '',
+          correo: tokenData.correo || '',
+          rol: tokenData.rol || 'USER'
+        } as EmpleadoResponse);
+        if (tokenData.rol) {
+          this.userRole.set(tokenData.rol.toUpperCase());
+        }
+        return;
+      }
+    }
     this.userData.set(null);
     this.userError.set(e?.message ?? 'Error en la petición al servidor');
   }

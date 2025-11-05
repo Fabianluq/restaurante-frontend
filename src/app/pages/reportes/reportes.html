@@ -1,0 +1,120 @@
+<div class="reportes-container">
+  <div class="reportes-header">
+    <h1>Reportes y Estadísticas</h1>
+    <p>Análisis de ventas y métricas del restaurante</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando reportes...</p>
+  </div>
+
+  <div *ngIf="!loading && reporte">
+    <!-- KPIs Cards -->
+    <div class="kpis-grid">
+      <div class="kpi-card kpi-primary">
+        <div class="kpi-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <p class="kpi-label">Ventas Totales</p>
+          <h3 class="kpi-value">{{ formatearMoneda(reporte.ventasTotales) }}</h3>
+          <span class="kpi-hint">Total acumulado</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-success">
+        <div class="kpi-icon">
+          <mat-icon>today</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <p class="kpi-label">Ventas Hoy</p>
+          <h3 class="kpi-value">{{ formatearMoneda(reporte.ventasHoy) }}</h3>
+          <span class="kpi-hint">Últimas 24 horas</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-info">
+        <div class="kpi-icon">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <p class="kpi-label">Pedidos Totales</p>
+          <h3 class="kpi-value">{{ reporte.pedidosTotales }}</h3>
+          <span class="kpi-hint">{{ reporte.pedidosHoy }} hoy</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-warning">
+        <div class="kpi-icon">
+          <mat-icon>attach_money</mat-icon>
+        </div>
+        <div class="kpi-content">
+          <p class="kpi-label">Promedio por Pedido</p>
+          <h3 class="kpi-value">{{ formatearMoneda(reporte.promedioPorPedido) }}</h3>
+          <span class="kpi-hint">Ticket promedio</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+      <!-- Gráfico de Línea -->
+      <mat-card class="chart-card">
+        <div class="chart-header">
+          <h2>Ventas por Día</h2>
+          <p class="chart-subtitle">Últimos 7 días</p>
+        </div>
+        <div class="chart-container">
+          <canvas baseChart
+            [data]="lineChartData"
+            [options]="lineChartOptions"
+            [type]="lineChartType">
+          </canvas>
+        </div>
+      </mat-card>
+
+      <!-- Gráfico de Barras -->
+      <mat-card class="chart-card">
+        <div class="chart-header">
+          <h2>Ventas por Mes</h2>
+          <p class="chart-subtitle">Últimos 6 meses</p>
+        </div>
+        <div class="chart-container">
+          <canvas baseChart
+            [data]="barChartData"
+            [options]="barChartOptions"
+            [type]="barChartType">
+          </canvas>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Productos Más Vendidos -->
+    <mat-card class="chart-card products-card">
+      <div class="chart-header">
+        <h2>Productos Más Vendidos</h2>
+        <p class="chart-subtitle">Top productos del mes</p>
+      </div>
+      <div class="products-chart-container" *ngIf="reporte.productosMasVendidos.length > 0">
+        <div class="doughnut-chart">
+          <canvas baseChart
+            [data]="doughnutChartData"
+            [options]="doughnutChartOptions"
+            [type]="doughnutChartType">
+          </canvas>
+        </div>
+        <div class="products-list">
+          <div *ngFor="let producto of reporte.productosMasVendidos; let i = index" class="product-item">
+            <div class="product-number">{{ i + 1 }}</div>
+            <div class="product-info">
+              <span class="product-name">{{ producto.producto }}</span>
+              <span class="product-stats">{{ producto.cantidad }} unidades</span>
+            </div>
+            <span class="product-total">{{ formatearMoneda(producto.total) }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>

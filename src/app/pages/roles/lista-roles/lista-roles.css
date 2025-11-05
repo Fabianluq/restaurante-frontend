@@ -1,6 +1,57 @@
-.container{padding:20px}
-.bar{display:flex;justify-content:flex-end;margin:10px 0}
-.loading,.error{text-align:center;margin:20px 0}
-table{width:100%}
+/* Estilos para botones de acciones en tablas */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
 
+.btn-edit,
+.btn-delete {
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+  min-width: auto !important;
+}
 
+.btn-edit {
+  color: #FF7A00 !important;
+  border-color: #FF7A00 !important;
+}
+
+.btn-edit:hover {
+  background-color: #FFF4E6 !important;
+  border-color: #E66A00 !important;
+  color: #E66A00 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 122, 0, 0.2) !important;
+}
+
+.btn-edit mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.btn-delete {
+  color: #EF4444 !important;
+  border-color: #EF4444 !important;
+}
+
+.btn-delete:hover {
+  background-color: #FEE2E2 !important;
+  border-color: #DC2626 !important;
+  color: #DC2626 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
+}
+
+.btn-delete mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}

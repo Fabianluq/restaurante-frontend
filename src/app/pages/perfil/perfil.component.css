@@ -139,8 +139,20 @@
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
   margin-top: 16px;
+}
+
+.form-validation-hint {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-validation-hint small {
+  display: block;
 }
 
 .inline-spinner {

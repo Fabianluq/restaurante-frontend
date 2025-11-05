@@ -82,12 +82,43 @@ export class PasswordService {
    */
   cambiarPassword(contraseniaActual: string, nuevaContrasenia: string): Observable<CambiarPasswordResponse | { error: any }> {
     const payload: CambiarPasswordRequest = { contraseniaActual, nuevaContrasenia };
+    
     return this.api.put<ApiResponse>('/auth/cambiar-contrasenia', payload).pipe(
       map((res: any) => {
-        if ((res as any)?.error) return res;
+        // Si hay error, devolverlo directamente
+        if ((res as any)?.error) {
+          return res;
+        }
+        
+        // Si la respuesta es null o vacía, el backend probablemente devolvió 200 OK sin body
+        // Esto es común cuando la operación es exitosa pero no hay respuesta
+        if (res === null || res === undefined) {
+          return {
+            mensaje: 'Contraseña cambiada exitosamente',
+            exito: true
+          };
+        }
+        
+        // Si es un objeto ApiResponse con estructura { estado, datos, mensaje }
         const apiRes = res as ApiResponse;
+        if (apiRes && (apiRes.mensaje || apiRes.estado === 'OK')) {
+          return {
+            mensaje: apiRes.mensaje || 'Contraseña cambiada exitosamente',
+            exito: true
+          };
+        }
+        
+        // Si es un objeto simple con mensaje
+        if (res && typeof res === 'object' && 'mensaje' in res) {
+          return {
+            mensaje: (res as any).mensaje || 'Contraseña cambiada exitosamente',
+            exito: true
+          };
+        }
+        
+        // Por defecto, asumir éxito si no hay error
         return {
-          mensaje: apiRes.mensaje || 'Contraseña cambiada exitosamente',
+          mensaje: 'Contraseña cambiada exitosamente',
           exito: true
         };
       })

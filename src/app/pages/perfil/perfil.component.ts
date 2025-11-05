@@ -107,6 +107,13 @@ export class PerfilComponent implements OnInit, OnDestroy {
   cambiarContrasenia(): void {
     if (this.cambioContraseniaForm.invalid) {
       this.cambioContraseniaForm.markAllAsTouched();
+      
+      // Mostrar mensaje específico según el error
+      if (this.cambioContraseniaForm.hasError('mismatch')) {
+        this.snack.open('Las contraseñas no coinciden', 'Cerrar', { duration: 3000 });
+      } else {
+        this.snack.open('Por favor completa todos los campos correctamente', 'Cerrar', { duration: 3000 });
+      }
       return;
     }
 
@@ -121,12 +128,29 @@ export class PerfilComponent implements OnInit, OnDestroy {
           if ((res as any)?.error) {
             const error = (res as any).error;
             let mensaje = 'Error al cambiar la contraseña';
-            if (error?.message) {
+            
+            // Extraer mensaje del error según diferentes formatos del backend
+            if (error?.errorBody) {
+              if (error.errorBody.message) {
+                mensaje = error.errorBody.message;
+              } else if (error.errorBody.detail) {
+                mensaje = error.errorBody.detail;
+              } else if (error.errorBody.title) {
+                mensaje = error.errorBody.title;
+              }
+            } else if (error?.message) {
               mensaje = error.message;
-            } else if (error?.errorBody?.message) {
-              mensaje = error.errorBody.message;
+            } else if (error?.detail) {
+              mensaje = error.detail;
+            } else if (error?.status === 400) {
+              mensaje = 'Error en la solicitud. Verifica que la contraseña actual sea correcta y que la nueva contraseña tenga al menos 6 caracteres.';
+            } else if (error?.status === 404) {
+              mensaje = 'El endpoint de cambio de contraseña no está disponible aún en el backend';
+            } else if (error?.status === 401) {
+              mensaje = 'No autorizado. Por favor, inicia sesión nuevamente.';
             }
-            this.snack.open(mensaje, 'Cerrar', { duration: 4000 });
+            
+            this.snack.open(mensaje, 'Cerrar', { duration: 5000 });
           } else {
             this.snack.open('Contraseña cambiada exitosamente', 'Cerrar', { duration: 3000 });
             this.mostrarCambioContrasenia = false;

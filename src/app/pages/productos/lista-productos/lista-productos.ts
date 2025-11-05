@@ -14,6 +14,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ProductoResponse } from '../../../core/models/producto.models';
 import { ProductoService } from '../../../core/services/producto.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
+import { QrDialogComponent } from '../../../shared/qr-dialog/qr-dialog';
 
 @Component({
   selector: 'app-lista-productos',
@@ -46,6 +47,21 @@ export class ListaProductos implements OnInit, OnDestroy {
 
   crear() { this.router.navigate(['/productos/crear']); }
   editar(p: ProductoResponse) { this.router.navigate(['/productos/editar', p.id]); }
+  
+  generarQRMenu(): void {
+    const baseUrl = window.location.origin;
+    const qrUrl = `${baseUrl}/menu`;
+    
+    this.dialog.open(QrDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'QR del Menú Digital',
+        url: qrUrl,
+        mesaNumero: undefined,
+        capacidad: undefined
+      }
+    });
+  }
   eliminar(p: ProductoResponse) {
     const dialogData: ConfirmDialogData = {
       message: `¿Eliminar producto "${p.nombre}"?`,

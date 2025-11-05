@@ -1,15 +1,15 @@
 export interface MesaResponse {
   id: number;
-  numero: string;
+  numero: number;
   capacidad: number;
   estado: string;
-  ubicacion?: string;
+  estadoId?: number;
 }
 
 export interface MesaRequest {
-  numero: string;
+  id?: number;
+  numero: number;
   capacidad: number;
-  estado?: string;
-  ubicacion?: string;
+  estadoId: number;
 }
 

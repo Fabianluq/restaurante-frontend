@@ -35,9 +35,29 @@ export class MesaService {
   }
 
   ocuparMesa(mesaId: number, empleadoId: number): Observable<string | { error: any }> {
-    return this.api.put<string>(`/empleados/mesas/${mesaId}/ocupar?empleadoId=${empleadoId}`, {}).pipe(
+    // Según OpenAPI: PUT /empleados/mesas/{id}/ocupar?empleadoId={empleadoId}
+    const url = `/empleados/mesas/${mesaId}/ocupar?empleadoId=${empleadoId}`;
+    
+    console.log('[MesaService] Ocupando mesa:', { mesaId, empleadoId, url });
+    
+    return this.api.put<string>(url, {}).pipe(
       map((res: any) => {
-        if ((res as any)?.error) return res;
+        if ((res as any)?.error) {
+          const error = (res as any).error;
+          console.error('[MesaService] Error al ocupar mesa:', error);
+          
+          // Si hay un error 403, mejorar el mensaje
+          if (error?.status === 403) {
+            return {
+              error: {
+                ...error,
+                message: 'No tienes permisos para ocupar mesas. El backend está rechazando la petición. Verifica la configuración de seguridad del backend o contacta al administrador.'
+              }
+            };
+          }
+          return res;
+        }
+        console.log('[MesaService] Mesa ocupada exitosamente');
         return res || 'Mesa ocupada exitosamente';
       })
     );

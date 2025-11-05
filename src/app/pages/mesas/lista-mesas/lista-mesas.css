@@ -6,6 +6,7 @@
   flex-wrap: wrap;
 }
 
+.btn-qr,
 .btn-edit,
 .btn-delete {
   padding: 8px 16px !important;
@@ -16,6 +17,25 @@
   gap: 6px !important;
   transition: all 0.2s ease !important;
   min-width: auto !important;
+}
+
+.btn-qr {
+  color: #ff6b35 !important;
+  border-color: #ff6b35 !important;
+}
+
+.btn-qr:hover {
+  background-color: #ff6b35 !important;
+  border-color: #e55a2b !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2) !important;
+}
+
+.btn-qr mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .btn-edit {

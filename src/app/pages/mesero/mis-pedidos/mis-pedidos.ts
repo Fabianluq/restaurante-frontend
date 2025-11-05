@@ -62,29 +62,30 @@ export class MisPedidos implements OnInit, OnDestroy {
     this.error = null;
     const user = this.auth.userData();
     
-    this.pedidoService.listar().pipe(takeUntil(this.destroy$)).subscribe({
+    // Usar el endpoint específico que valida en el backend que MESERO solo vea sus pedidos
+    if (!user || !user.id) {
+      this.loading = false;
+      this.error = 'Usuario no autenticado';
+      this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+      return;
+    }
+    
+    this.pedidoService.listarPorEmpleado(user.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.loading = false;
         if ((res as any)?.error) {
-          this.error = 'Error al cargar pedidos';
-          this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+          const errorMsg = (res as any).error?.message || 'Error al cargar pedidos';
+          this.error = errorMsg;
+          this.snack.open(errorMsg, 'Cerrar', { duration: 4000 });
         } else {
-          this.pedidos = res as PedidoResponse[];
-          // Filtrar solo los pedidos del mesero actual
-          if (user && user.id) {
-            this.misPedidos = this.pedidos.filter(p => 
-              p.empleadoNombre?.includes(user.nombre) || 
-              String(p.empleado)?.includes(user.nombre) ||
-              (p as any).empleadoId === user.id
-            );
-          } else {
-            this.misPedidos = this.pedidos;
-          }
+          this.misPedidos = res as PedidoResponse[];
+          this.pedidos = this.misPedidos; // Mantener compatibilidad
         }
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
         this.error = 'Error de conexión';
+        console.error('Error al cargar pedidos:', err);
         this.snack.open(this.error, 'Cerrar', { duration: 4000 });
       }
     });
@@ -98,24 +99,33 @@ export class MisPedidos implements OnInit, OnDestroy {
   }
 
   marcarEntregado(pedido: PedidoResponse): void {
+    // Buscar estado "Entregado" exacto
     const estado = this.estados.find(e => 
-      e.descripcion.toUpperCase().includes('ENTREGADO')
+      e.descripcion.trim().toLowerCase() === 'entregado' ||
+      e.descripcion.toLowerCase().includes('entregado')
     );
+    
     if (!estado) {
-      this.snack.open('Estado "Entregado" no encontrado', 'Cerrar', { duration: 3000 });
+      this.snack.open(`Estado "Entregado" no encontrado. Estados disponibles: ${this.estados.map(e => e.descripcion).join(', ')}`, 'Cerrar', { duration: 5000 });
+      console.error('Estados disponibles:', this.estados);
       return;
     }
 
     this.pedidoService.cambiarEstado(pedido.id, estado.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         if ((res as any)?.error) {
-          this.snack.open('Error al cambiar estado', 'Cerrar', { duration: 3000 });
+          const errorMsg = (res as any).error?.message || 'Error al cambiar estado';
+          this.snack.open(errorMsg, 'Cerrar', { duration: 3000 });
+          console.error('Error al cambiar estado:', res);
         } else {
-          this.snack.open('Pedido marcado como entregado', 'Cerrar', { duration: 2000 });
+          this.snack.open(`Pedido marcado como "${estado.descripcion}"`, 'Cerrar', { duration: 2000 });
           this.cargar();
         }
       },
-      error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+      error: (err) => {
+        console.error('Error al cambiar estado:', err);
+        this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 });
+      }
     });
   }
 
@@ -128,15 +138,31 @@ export class MisPedidos implements OnInit, OnDestroy {
   }
 
   getEstadoColor(estado?: string): string {
-    const e = (estado || '').toUpperCase();
-    if (e.includes('LISTO')) return 'accent';
-    if (e.includes('ENTREGADO')) return 'primary';
+    if (!estado) return '';
+    const e = estado.trim().toLowerCase();
+    if (e === 'pendiente') return 'warn';
+    if (e === 'en preparación' || e === 'en preparacion' || e.includes('preparación') || e.includes('preparacion')) return 'primary';
+    if (e === 'listo') return 'accent';
+    if (e === 'entregado') return 'primary';
+    if (e === 'pagado') return 'accent';
+    if (e === 'cancelado') return 'warn';
     return '';
   }
 
   puedeMarcarEntregado(pedido: PedidoResponse): boolean {
-    const estado = (pedido.estado || '').toUpperCase();
-    return estado.includes('LISTO') || estado.includes('PREPARADO');
+    if (!pedido.estado) return false;
+    const estado = pedido.estado.trim().toLowerCase();
+    // Solo puede marcar como entregado si está "Listo" (no "En preparación" ni ya "Entregado")
+    return estado === 'listo' && 
+           !estado.includes('entregado') && 
+           !estado.includes('preparación') &&
+           !estado.includes('preparacion');
+  }
+
+  estaEntregado(pedido: PedidoResponse): boolean {
+    if (!pedido.estado) return false;
+    const estado = pedido.estado.trim().toLowerCase();
+    return estado === 'entregado' || estado.includes('entregado');
   }
 }
 

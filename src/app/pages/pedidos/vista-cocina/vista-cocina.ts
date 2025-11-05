@@ -57,23 +57,50 @@ export class VistaCocina implements OnInit, OnDestroy {
   cargar(): void {
     this.loading = true;
     this.error = null;
-    this.pedidoService.listar().pipe(takeUntil(this.destroy$)).subscribe({
+    // Usar endpoint específico para cocina según OpenAPI
+    this.pedidoService.listarParaCocina().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.loading = false;
         if ((res as any)?.error) {
-          this.error = 'Error al cargar pedidos';
-          this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+          // Si falla el endpoint específico, intentar con el general
+          this.pedidoService.listar().pipe(takeUntil(this.destroy$)).subscribe({
+            next: (res2) => {
+              if ((res2 as any)?.error) {
+                this.error = 'Error al cargar pedidos';
+                this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+              } else {
+                // Cargar TODOS los pedidos, el filtrado se hace en getPedidosFiltrados()
+                this.pedidos = res2 as PedidoResponse[];
+                console.log('Pedidos cargados:', this.pedidos.map(p => ({ id: p.id, estado: p.estado })));
+              }
+            }
+          });
         } else {
-          this.pedidos = (res as PedidoResponse[]).filter(p => 
-            this.filtroEstado === 'TODOS' || 
-            p.estado?.toUpperCase() === this.filtroEstado
-          );
+          // Cargar TODOS los pedidos, el filtrado se hace en getPedidosFiltrados()
+          this.pedidos = res as PedidoResponse[];
+          console.log('Pedidos cargados:', this.pedidos.map(p => ({ id: p.id, estado: p.estado })));
         }
       },
       error: () => {
-        this.loading = false;
-        this.error = 'Error de conexión';
-        this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+        // Si falla, intentar con el endpoint general
+        this.pedidoService.listar().pipe(takeUntil(this.destroy$)).subscribe({
+          next: (res) => {
+            this.loading = false;
+            if ((res as any)?.error) {
+              this.error = 'Error al cargar pedidos';
+              this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+            } else {
+              // Cargar TODOS los pedidos, el filtrado se hace en getPedidosFiltrados()
+              this.pedidos = res as PedidoResponse[];
+              console.log('Pedidos cargados:', this.pedidos.map(p => ({ id: p.id, estado: p.estado })));
+            }
+          },
+          error: () => {
+            this.loading = false;
+            this.error = 'Error de conexión';
+            this.snack.open(this.error, 'Cerrar', { duration: 4000 });
+          }
+        });
       }
     });
   }
@@ -86,39 +113,73 @@ export class VistaCocina implements OnInit, OnDestroy {
   }
 
   cambiarEstado(pedido: PedidoResponse, nuevoEstado: string): void {
-    // Buscar estado por descripción (case-insensitive, permite variaciones)
+    // Mapeo de estados buscados a descripciones exactas del backend
+    const mapEstados: { [key: string]: string[] } = {
+      'EN_PREPARACION': ['En preparación', 'En preparacion', 'preparación', 'preparacion'],
+      'LISTO': ['Listo'],
+      'ENTREGADO': ['Entregado']
+    };
+    
+    // Buscar estado por descripción exacta o variaciones
+    const buscarDescripciones = mapEstados[nuevoEstado.toUpperCase()] || [nuevoEstado];
     const estado = this.estados.find(e => {
-      const desc = e.descripcion.toUpperCase();
-      const buscar = nuevoEstado.toUpperCase();
-      return desc === buscar || 
-             desc.includes(buscar) || 
-             buscar.includes(desc) ||
-             (buscar === 'EN_PREPARACION' && (desc.includes('PREPARACION') || desc.includes('PREPARACIÓN')));
+      const desc = e.descripcion.trim();
+      return buscarDescripciones.some(buscar => 
+        desc.toLowerCase() === buscar.toLowerCase() ||
+        desc.toLowerCase().includes(buscar.toLowerCase()) ||
+        buscar.toLowerCase().includes(desc.toLowerCase())
+      );
     });
     
     if (!estado) {
-      this.snack.open(`Estado "${nuevoEstado}" no encontrado`, 'Cerrar', { duration: 3000 });
+      this.snack.open(`Estado "${nuevoEstado}" no encontrado. Estados disponibles: ${this.estados.map(e => e.descripcion).join(', ')}`, 'Cerrar', { duration: 5000 });
+      console.error('Estados disponibles:', this.estados);
+      console.error('Buscando estado:', nuevoEstado);
       return;
     }
 
     this.pedidoService.cambiarEstado(pedido.id, estado.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         if ((res as any)?.error) {
-          this.snack.open('Error al cambiar estado', 'Cerrar', { duration: 3000 });
+          const errorMsg = (res as any).error?.message || 'Error al cambiar estado';
+          this.snack.open(errorMsg, 'Cerrar', { duration: 3000 });
+          console.error('Error al cambiar estado:', res);
         } else {
-          this.snack.open('Estado actualizado', 'Cerrar', { duration: 2000 });
+          this.snack.open(`Pedido marcado como "${estado.descripcion}"`, 'Cerrar', { duration: 2000 });
           this.cargar();
         }
       },
-      error: () => this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 })
+      error: (err) => {
+        console.error('Error al cambiar estado:', err);
+        this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 });
+      }
     });
   }
 
   getPedidosFiltrados(): PedidoResponse[] {
     if (this.filtroEstado === 'TODOS') return this.pedidos;
-    return this.pedidos.filter(p => 
-      p.estado?.toUpperCase() === this.filtroEstado
-    );
+    
+    const filtro = this.filtroEstado.toUpperCase().trim();
+    const filtrados = this.pedidos.filter(p => {
+      if (filtro === 'PENDIENTE') {
+        return this.esPendiente(p.estado);
+      }
+      
+      if (filtro === 'EN_PREPARACION') {
+        return this.esEnPreparacion(p.estado);
+      }
+      
+      if (filtro === 'LISTO') {
+        return this.esListo(p.estado);
+      }
+      
+      // Fallback: comparación por nombre exacto
+      const estadoPedido = (p.estado || '').trim().toLowerCase();
+      const filtroLower = filtro.toLowerCase();
+      return estadoPedido === filtroLower || estadoPedido.includes(filtroLower);
+    });
+    
+    return filtrados;
   }
 
   getProductosResumen(detalles?: DetallePedido[]): string {
@@ -127,11 +188,43 @@ export class VistaCocina implements OnInit, OnDestroy {
   }
 
   getEstadoColor(estado?: string): string {
-    const e = (estado || '').toUpperCase();
-    if (e.includes('PENDIENTE')) return 'warn';
-    if (e.includes('PREPARACION') || e.includes('PREPARACIÓN')) return 'primary';
-    if (e.includes('LISTO')) return 'accent';
+    if (!estado) return '';
+    const e = estado.trim().toLowerCase();
+    if (e === 'pendiente') return 'warn';
+    if (e === 'en preparación' || e === 'en preparacion' || e.includes('preparación') || e.includes('preparacion')) return 'primary';
+    if (e === 'listo') return 'accent';
+    if (e === 'entregado') return 'primary';
+    if (e === 'pagado') return 'accent';
+    if (e === 'cancelado') return 'warn';
     return '';
+  }
+
+  esPendiente(estado?: string): boolean {
+    if (!estado) return false;
+    const e = estado.trim();
+    // Comparación exacta o insensible a mayúsculas/minúsculas
+    return e.toLowerCase() === 'pendiente';
+  }
+
+  esEnPreparacion(estado?: string): boolean {
+    if (!estado) return false;
+    const e = estado.trim();
+    // Comparación exacta: "En preparación"
+    return e.toLowerCase() === 'en preparación' || 
+           e.toLowerCase() === 'en preparacion' ||
+           e.toLowerCase().includes('preparación') ||
+           e.toLowerCase().includes('preparacion');
+  }
+
+  esListo(estado?: string): boolean {
+    if (!estado) return false;
+    const e = estado.trim();
+    // Comparación exacta: "Listo" (sin espacios extra, sin "Entregado", sin "Preparación")
+    const estadoLower = e.toLowerCase();
+    return estadoLower === 'listo' && 
+           !estadoLower.includes('entregado') && 
+           !estadoLower.includes('preparación') &&
+           !estadoLower.includes('preparacion');
   }
 }
 

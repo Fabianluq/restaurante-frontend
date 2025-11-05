@@ -23,6 +23,10 @@ import { PerfilComponent } from './pages/perfil/perfil.component';
 import { ReportesComponent } from './pages/reportes/reportes';
 import { RecuperarContraseniaComponent } from './pages/auth/recuperar-contrasenia/recuperar-contrasenia';
 import { ResetearContraseniaComponent } from './pages/auth/resetear-contrasenia/resetear-contrasenia';
+import { CrearReserva } from './pages/reservas/crear-reserva/crear-reserva';
+import { MisReservas } from './pages/reservas/mis-reservas/mis-reservas';
+import { ReservarQr } from './pages/reservas/reservar-qr/reservar-qr';
+import { HomeComponent } from './pages/home/home.component';
 import { NoAuthGuard } from './core/guards/no-auth.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 
@@ -30,6 +34,15 @@ export const routes: Routes = [
   // ========================================
   // RUTAS PÚBLICAS (Sin autenticación)
   // ========================================
+  {
+    path: '',
+    pathMatch: 'full',
+    component: HomeComponent
+  },
+  {
+    path: 'home',
+    component: HomeComponent
+  },
   {
     path: 'login',
     component: LoginComponent,
@@ -50,6 +63,26 @@ export const routes: Routes = [
     component: ResetearContraseniaComponent,
     canActivate: [NoAuthGuard]
   },
+  {
+    path: 'reservar',
+    component: CrearReserva,
+    // Sin guard para que sea público
+  },
+  {
+    path: 'reservar-qr',
+    component: ReservarQr,
+    // Sin guard para que sea público - acceso desde QR
+  },
+  {
+    path: 'mis-reservas',
+    component: MisReservas,
+    // Sin guard para que sea público
+  },
+  {
+    path: 'menu',
+    component: MenuComponent,
+    // Público - sin guard para que los clientes puedan ver el menú
+  },
   
   // ========================================
   // RUTAS COMPARTIDAS (Todos los roles autenticados)
@@ -57,11 +90,6 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'menu',
-    component: MenuComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -235,12 +263,7 @@ export const routes: Routes = [
   // RUTAS POR DEFECTO
   // ========================================
   {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'dashboard'
-  },
-  {
     path: '**',
-    redirectTo: 'dashboard'
+    redirectTo: ''
   }
 ];

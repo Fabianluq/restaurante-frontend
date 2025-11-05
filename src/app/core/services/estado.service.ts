@@ -21,40 +21,18 @@ export class EstadoService {
   constructor(private api: ApiClientService) {}
 
   listarEstadosPedidos(): Observable<EstadoResponse[] | { error: any }> {
-    // Intentar diferentes endpoints posibles
-    return this.api.get<ApiResponse>('/estados?tipo=pedidos').pipe(
+    // Según OpenAPI: GET /estados/pedidos
+    return this.api.get<EstadoResponse[]>('/estados/pedidos').pipe(
       catchError(() => {
-        // Si falla, intentar endpoint alternativo
-        return this.api.get<ApiResponse>('/estados').pipe(
-          catchError(() => {
-            // Si también falla, devolver estados por defecto
-            console.warn('[EstadoService] No se pudieron cargar estados, usando valores por defecto');
-            return of([]);
-          })
-        );
+        // Si falla, devolver estados por defecto
+        return of(this.getEstadosPorDefecto());
       }),
       map((res: any) => {
         if ((res as any)?.error) {
-          // Si hay error, devolver estados por defecto
           return this.getEstadosPorDefecto();
         }
-        const apiRes = res as ApiResponse;
-        if (apiRes.datos && apiRes.datos.length > 0) {
-          return apiRes.datos;
-        }
-        // Si no hay datos, filtrar solo estados de pedidos o devolver por defecto
-        if (Array.isArray(res) && res.length > 0) {
-          return res.filter((e: EstadoResponse) => 
-            e.descripcion && (
-              e.descripcion.toUpperCase().includes('PENDIENTE') ||
-              e.descripcion.toUpperCase().includes('PREPARACION') ||
-              e.descripcion.toUpperCase().includes('LISTO') ||
-              e.descripcion.toUpperCase().includes('ENTREGADO') ||
-              e.descripcion.toUpperCase().includes('PAGADO')
-            )
-          );
-        }
-        return this.getEstadosPorDefecto();
+        // Si viene como array directo
+        return Array.isArray(res) && res.length > 0 ? res : this.getEstadosPorDefecto();
       })
     );
   }
@@ -70,23 +48,23 @@ export class EstadoService {
   }
 
   listarEstadosMesas(): Observable<EstadoResponse[] | { error: any }> {
-    return this.api.get<ApiResponse>('/estados?tipo=mesas').pipe(
-      catchError(() => this.api.get<ApiResponse>('/estados')),
+    // Según OpenAPI: GET /estadoMesa
+    return this.api.get<EstadoResponse[]>('/estadoMesa').pipe(
+      catchError(() => of([])),
       map((res: any) => {
         if ((res as any)?.error) return res;
-        const apiRes = res as ApiResponse;
-        return apiRes.datos || [];
+        return Array.isArray(res) ? res : [];
       })
     );
   }
 
   listarEstadosProductos(): Observable<EstadoResponse[] | { error: any }> {
-    return this.api.get<ApiResponse>('/estados?tipo=productos').pipe(
-      catchError(() => this.api.get<ApiResponse>('/estados')),
+    // Según OpenAPI: GET /estadoProducto
+    return this.api.get<EstadoResponse[]>('/estadoProducto').pipe(
+      catchError(() => of([])),
       map((res: any) => {
         if ((res as any)?.error) return res;
-        const apiRes = res as ApiResponse;
-        return apiRes.datos || [];
+        return Array.isArray(res) ? res : [];
       })
     );
   }

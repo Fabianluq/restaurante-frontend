@@ -6,8 +6,9 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Número de Mesa</mat-label>
-            <input matInput formControlName="numero" required>
+            <input matInput type="number" formControlName="numero" required>
             <mat-error *ngIf="form.get('numero')?.hasError('required')">El número es requerido</mat-error>
+            <mat-error *ngIf="form.get('numero')?.hasError('min')">Debe ser mayor a 0</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -19,17 +20,12 @@
         </div>
 
         <div class="form-row">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" class="full">
             <mat-label>Estado</mat-label>
-            <mat-select formControlName="estado" required>
-              <mat-option *ngFor="let e of estados" [value]="e">{{ e }}</mat-option>
+            <mat-select formControlName="estadoId" required>
+              <mat-option *ngFor="let e of estados" [value]="e.id">{{ e.descripcion }}</mat-option>
             </mat-select>
-            <mat-error *ngIf="form.get('estado')?.hasError('required')">El estado es requerido</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Ubicación</mat-label>
-            <input matInput formControlName="ubicacion" placeholder="Ej: Terraza, Interior">
+            <mat-error *ngIf="form.get('estadoId')?.hasError('required')">El estado es requerido</mat-error>
           </mat-form-field>
         </div>
 

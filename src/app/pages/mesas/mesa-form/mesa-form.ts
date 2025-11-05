@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { MesaService } from '../../../core/services/mesa.service';
 import { MesaRequest, MesaResponse } from '../../../core/models/mesa.models';
+import { EstadoService, EstadoResponse } from '../../../core/services/estado.service';
 import { NavigationService } from '../../../core/services/navigation.service';
 
 @Component({
@@ -24,12 +25,13 @@ export class MesaForm implements OnInit, OnDestroy {
   isEdit = false;
   id: number | null = null;
   saving = false;
-  estados = ['DISPONIBLE', 'OCUPADA', 'RESERVADA', 'MANTENIMIENTO'];
+  estados: EstadoResponse[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private mesaService: MesaService,
+    private estadoService: EstadoService,
     private route: ActivatedRoute,
     private nav: NavigationService,
     private snack: MatSnackBar
@@ -37,11 +39,12 @@ export class MesaForm implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      numero: ['', [Validators.required]],
+      numero: [null, [Validators.required, Validators.min(1)]],
       capacidad: [2, [Validators.required, Validators.min(1)]],
-      estado: ['DISPONIBLE', [Validators.required]],
-      ubicacion: ['']
+      estadoId: ['', [Validators.required]]
     });
+    
+    this.cargarEstados();
 
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(p => {
       if (p['id']) {
@@ -57,6 +60,16 @@ export class MesaForm implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  cargarEstados(): void {
+    this.estadoService.listarEstadosMesas().pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        if (!(res as any)?.error) {
+          this.estados = res as EstadoResponse[];
+        }
+      }
+    });
+  }
+
   private cargar(id: number): void {
     this.mesaService.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
@@ -64,11 +77,15 @@ export class MesaForm implements OnInit, OnDestroy {
           this.snack.open('No se pudo cargar la mesa', 'Cerrar', { duration: 3000 });
         } else {
           const m = res as MesaResponse;
+          // Buscar el estadoId por el nombre del estado
+          const estadoEncontrado = this.estados.find(e => 
+            e.descripcion.toUpperCase() === m.estado?.toUpperCase()
+          );
+          
           this.form.patchValue({
-            numero: m.numero,
+            numero: typeof m.numero === 'string' ? parseInt(m.numero) : m.numero,
             capacidad: m.capacidad,
-            estado: m.estado || 'DISPONIBLE',
-            ubicacion: m.ubicacion || ''
+            estadoId: m.estadoId || estadoEncontrado?.id || ''
           });
         }
       },
@@ -78,11 +95,23 @@ export class MesaForm implements OnInit, OnDestroy {
 
   submit(): void {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       this.snack.open('Por favor complete todos los campos requeridos', 'Cerrar', { duration: 3000 });
       return;
     }
     this.saving = true;
-    const payload: MesaRequest = this.form.value as MesaRequest;
+    const formValue = this.form.value;
+    const payload: MesaRequest = {
+      numero: Number(formValue.numero),
+      capacidad: Number(formValue.capacidad),
+      estadoId: Number(formValue.estadoId)
+    };
+    
+    // Si es edición, incluir el id según el OpenAPI
+    if (this.isEdit && this.id) {
+      payload.id = this.id;
+    }
+    
     const req = this.isEdit && this.id
       ? this.mesaService.actualizar(this.id, payload)
       : this.mesaService.crear(payload);

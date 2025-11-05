@@ -23,6 +23,11 @@ mat-card-title {
   display: flex;
   gap: 16px;
   margin-bottom: 20px;
+  align-items: center;
+}
+
+.form-row mat-checkbox {
+  margin-top: 8px;
 }
 
 .full {

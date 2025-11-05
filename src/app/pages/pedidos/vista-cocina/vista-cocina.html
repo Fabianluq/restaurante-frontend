@@ -60,16 +60,21 @@
           <mat-icon>visibility</mat-icon> Ver
         </button>
         <button mat-raised-button color="primary" 
-                *ngIf="p.estado?.toUpperCase() === 'PENDIENTE'"
+                *ngIf="esPendiente(p.estado)"
                 (click)="cambiarEstado(p, 'EN_PREPARACION')"
                 class="btn-action">
-          <mat-icon>play_arrow</mat-icon> Iniciar
+          <mat-icon>play_arrow</mat-icon> Iniciar Preparación
         </button>
-        <button mat-raised-button color="accent" 
-                *ngIf="p.estado?.toUpperCase().includes('PREPARACION')"
+        <button mat-raised-button 
+                *ngIf="esEnPreparacion(p.estado)"
                 (click)="cambiarEstado(p, 'LISTO')"
-                class="btn-action">
-          <mat-icon>check_circle</mat-icon> Listo
+                class="btn-action btn-verde">
+          <mat-icon>check_circle</mat-icon> Marcar como Listo
+        </button>
+        <button mat-raised-button 
+                *ngIf="esListo(p.estado)"
+                class="btn-action btn-verde" disabled>
+          <mat-icon>done_all</mat-icon> Listo para Entregar
         </button>
       </td>
     </ng-container>

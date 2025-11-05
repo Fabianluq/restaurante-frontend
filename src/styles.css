@@ -68,6 +68,46 @@
   --transition-slow: 300ms ease;
 }
 
+/* Botones verdes globales para estados "Listo" y "Entregado" - Máxima especificidad */
+button.btn-verde.mat-raised-button,
+button.btn-verde.mat-stroked-button,
+.btn-action.btn-verde.mat-raised-button,
+.btn-action.btn-verde.mat-stroked-button,
+mat-raised-button.btn-verde,
+mat-stroked-button.btn-verde {
+  background-color: #4caf50 !important;
+  color: white !important;
+  border-color: #4caf50 !important;
+}
+
+button.btn-verde.mat-raised-button:hover:not(:disabled),
+.btn-action.btn-verde.mat-raised-button:hover:not(:disabled),
+mat-raised-button.btn-verde:hover:not(:disabled) {
+  background-color: #45a049 !important;
+}
+
+button.btn-verde.mat-raised-button:disabled,
+button.btn-verde.mat-stroked-button:disabled,
+.btn-action.btn-verde.mat-raised-button:disabled,
+.btn-action.btn-verde.mat-stroked-button:disabled,
+mat-raised-button.btn-verde:disabled,
+mat-stroked-button.btn-verde:disabled {
+  background-color: #81c784 !important;
+  color: white !important;
+  border-color: #81c784 !important;
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+button.btn-verde.mat-raised-button .mat-icon,
+button.btn-verde.mat-stroked-button .mat-icon,
+.btn-action.btn-verde.mat-raised-button .mat-icon,
+.btn-action.btn-verde.mat-stroked-button .mat-icon,
+mat-raised-button.btn-verde .mat-icon,
+mat-stroked-button.btn-verde .mat-icon {
+  color: white !important;
+}
+
 /* ============================================
    RESET Y BASE
    ============================================ */
@@ -116,6 +156,18 @@ html, body {
 
 .mat-icon.round { 
   font-family: 'Material Icons Round' !important; 
+}
+
+/* Notificaciones de cambios en tiempo real */
+.notificacion-cambio {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.notificacion-cambio .mat-mdc-snack-bar-label {
+  font-weight: 500;
+  font-size: 14px;
 }
 
 /* ============================================

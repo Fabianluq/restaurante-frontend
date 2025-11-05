@@ -98,7 +98,8 @@ export class PagoService {
   }
 
   obtenerFactura(pedidoId: number): Observable<FacturaResponse | { error: any }> {
-    return this.api.get<ApiResponseFactura>(`/facturas/${pedidoId}`).pipe(
+    // El backend usa /facturas/pedido/{pedidoId}
+    return this.api.get<ApiResponseFactura>(`/facturas/pedido/${pedidoId}`).pipe(
       map((res: any) => {
         if ((res as any)?.error) return res;
         const apiRes = res as ApiResponseFactura;

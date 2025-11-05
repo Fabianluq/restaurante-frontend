@@ -1,0 +1,120 @@
+<div class="reserva-qr-container">
+  <mat-card class="reserva-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>qr_code_scanner</mat-icon>
+        Reservar Mesa
+        <span *ngIf="mesaNumero" class="mesa-indicator">Mesa #{{ mesaNumero }}</span>
+      </mat-card-title>
+      <mat-card-subtitle>Haz tu reserva en RestaurApp</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Indicador de disponibilidad -->
+      <div *ngIf="verificandoDisponibilidad" class="disponibilidad-checking">
+        <mat-spinner diameter="24"></mat-spinner>
+        <span>Verificando disponibilidad...</span>
+      </div>
+
+      <div *ngIf="disponibilidad && !verificandoDisponibilidad" class="disponibilidad-status">
+        <mat-chip [color]="disponibilidad.disponible ? 'primary' : 'warn'">
+          <mat-icon>{{ disponibilidad.disponible ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ disponibilidad.mensaje }}
+        </mat-chip>
+        <div *ngIf="disponibilidad.disponible && disponibilidad.mesaNumero" class="mesa-info">
+          <small>Mesa sugerida: #{{ disponibilidad.mesaNumero }} (Capacidad: {{ disponibilidad.capacidadMesa }} personas)</small>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="reserva-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Fecha de Reserva</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fechaReserva" [min]="fechaMinima()" [max]="fechaMaxima()" required>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="fechaReserva?.hasError('required')">La fecha es requerida</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hora</mat-label>
+            <mat-select formControlName="horaReserva" required>
+              <mat-option *ngFor="let hora of horariosDisponibles" [value]="hora">
+                {{ hora }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="horaReserva?.hasError('required')">La hora es requerida</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Cantidad de Personas</mat-label>
+            <input matInput type="number" formControlName="cantidadPersonas" min="1" max="20" required>
+            <mat-error *ngIf="cantidadPersonas?.hasError('required')">La cantidad es requerida</mat-error>
+            <mat-error *ngIf="cantidadPersonas?.hasError('min')">Mínimo 1 persona</mat-error>
+            <mat-error *ngIf="cantidadPersonas?.hasError('max')">Máximo 20 personas</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombreCliente" required>
+            <mat-error *ngIf="nombreCliente?.hasError('required')">El nombre es requerido</mat-error>
+            <mat-error *ngIf="nombreCliente?.hasError('minlength')">Mínimo 1 carácter</mat-error>
+            <mat-error *ngIf="nombreCliente?.hasError('maxlength')">Máximo 60 caracteres</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="apellidoCliente" required>
+            <mat-error *ngIf="apellidoCliente?.hasError('required')">El apellido es requerido</mat-error>
+            <mat-error *ngIf="apellidoCliente?.hasError('minlength')">Mínimo 1 carácter</mat-error>
+            <mat-error *ngIf="apellidoCliente?.hasError('maxlength')">Máximo 60 caracteres</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput type="email" formControlName="correoCliente" required>
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-error *ngIf="correoCliente?.hasError('required')">El correo es requerido</mat-error>
+            <mat-error *ngIf="correoCliente?.hasError('email')">Correo inválido</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Teléfono</mat-label>
+            <input matInput type="tel" formControlName="telefonoCliente" required>
+            <mat-icon matPrefix>phone</mat-icon>
+            <mat-error *ngIf="telefonoCliente?.hasError('required')">El teléfono es requerido</mat-error>
+            <mat-error *ngIf="telefonoCliente?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+            <mat-error *ngIf="telefonoCliente?.hasError('maxlength')">Máximo 20 caracteres</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="submitting || form.invalid || !disponibilidad?.disponible">
+            <mat-icon *ngIf="!submitting">check</mat-icon>
+            <mat-spinner *ngIf="submitting" diameter="20" class="inline-spinner"></mat-spinner>
+            {{ submitting ? 'Reservando...' : 'Confirmar Reserva' }}
+          </button>
+          <a routerLink="/mis-reservas" mat-stroked-button class="btn-mis-reservas">
+            <mat-icon>event</mat-icon>
+            Mis Reservas
+          </a>
+          <a routerLink="/" mat-stroked-button class="btn-cancelar">
+            <mat-icon>home</mat-icon>
+            Volver al Inicio
+          </a>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

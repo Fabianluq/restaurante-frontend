@@ -60,6 +60,39 @@ table {
   margin-right: 8px;
 }
 
+/* Botones verdes - Máxima especificidad */
+button.btn-verde.mat-raised-button,
+button.btn-verde.mat-stroked-button,
+.btn-action.btn-verde.mat-raised-button,
+.btn-action.btn-verde.mat-stroked-button {
+  background-color: #4caf50 !important;
+  color: white !important;
+  border-color: #4caf50 !important;
+}
+
+button.btn-verde.mat-raised-button:hover:not(:disabled),
+.btn-action.btn-verde.mat-raised-button:hover:not(:disabled) {
+  background-color: #45a049 !important;
+}
+
+button.btn-verde.mat-raised-button:disabled,
+button.btn-verde.mat-stroked-button:disabled,
+.btn-action.btn-verde.mat-raised-button:disabled,
+.btn-action.btn-verde.mat-stroked-button:disabled {
+  background-color: #81c784 !important;
+  color: white !important;
+  border-color: #81c784 !important;
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+button.btn-verde.mat-raised-button .mat-icon,
+button.btn-verde.mat-stroked-button .mat-icon,
+.btn-action.btn-verde.mat-raised-button .mat-icon,
+.btn-action.btn-verde.mat-stroked-button .mat-icon {
+  color: white !important;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;

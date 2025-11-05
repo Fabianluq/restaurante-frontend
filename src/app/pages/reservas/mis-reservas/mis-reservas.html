@@ -88,11 +88,23 @@
                 </div>
               </div>
               <div class="reserva-actions" *ngIf="puedeCancelar(reserva) || puedeConfirmar(reserva)">
-                <button mat-raised-button color="primary" (click)="confirmarReserva(reserva)" [disabled]="loading || !puedeConfirmar(reserva)" class="btn-confirmar">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="confirmarReserva(reserva); $event.stopPropagation()" 
+                  [disabled]="loading || !puedeConfirmar(reserva)" 
+                  class="btn-confirmar"
+                  type="button">
                   <mat-icon>check_circle</mat-icon>
                   Confirmar
                 </button>
-                <button mat-raised-button color="warn" (click)="cancelarReserva(reserva)" [disabled]="loading || !puedeCancelar(reserva)" class="btn-cancelar">
+                <button 
+                  mat-raised-button 
+                  color="warn" 
+                  (click)="cancelarReserva(reserva); $event.stopPropagation()" 
+                  [disabled]="loading || !puedeCancelar(reserva)" 
+                  class="btn-cancelar"
+                  type="button">
                   <mat-icon>cancel</mat-icon>
                   Cancelar
                 </button>

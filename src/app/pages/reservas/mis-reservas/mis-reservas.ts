@@ -252,8 +252,15 @@ export class MisReservas implements OnInit, OnDestroy {
   }
 
   confirmarReserva(reserva: ReservaResponse): void {
-    if (!reserva.id || !this.correo?.value) return;
+    console.log('confirmarReserva llamado', { reserva, correo: this.correo?.value });
+    
+    if (!reserva.id || !this.correo?.value) {
+      console.error('Faltan datos: reserva.id =', reserva.id, 'correo =', this.correo?.value);
+      this.snack.open('Error: Faltan datos para confirmar la reserva', 'Cerrar', { duration: 3000 });
+      return;
+    }
 
+    console.log('Abriendo diálogo de confirmación...');
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
@@ -266,13 +273,17 @@ export class MisReservas implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      console.log('Diálogo cerrado, resultado:', result);
       if (result) {
+        console.log('Usuario confirmó, llamando al servicio...');
         this.loading = true;
         this.reservaService.confirmarPublica(reserva.id!, this.correo!.value).pipe(takeUntil(this.destroy$)).subscribe({
           next: (res) => {
+            console.log('Respuesta del servicio:', res);
             this.loading = false;
             if ((res as any)?.error) {
               const error = (res as any).error;
+              console.error('Error en la respuesta:', error);
               let mensaje = 'Error al confirmar la reserva';
               
               if (error?.errorBody?.message) {
@@ -285,15 +296,25 @@ export class MisReservas implements OnInit, OnDestroy {
               
               this.snack.open(mensaje, 'Cerrar', { duration: 5000 });
             } else {
+              console.log('Reserva confirmada exitosamente');
               this.snack.open('✅ Reserva confirmada exitosamente. Se enviará una notificación de confirmación a tu correo.', 'Cerrar', { duration: 5000 });
               this.buscarReservas(); // Recargar la lista
             }
           },
           error: (err) => {
+            console.error('Error al confirmar reserva:', err);
             this.loading = false;
-            this.snack.open('Error de conexión. Intenta nuevamente.', 'Cerrar', { duration: 4000 });
+            let mensajeError = 'Error de conexión. Intenta nuevamente.';
+            if (err?.error?.message) {
+              mensajeError = err.error.message;
+            } else if (err?.message) {
+              mensajeError = err.message;
+            }
+            this.snack.open(mensajeError, 'Cerrar', { duration: 4000 });
           }
         });
+      } else {
+        console.log('Usuario canceló la confirmación');
       }
     });
   }
@@ -317,13 +338,23 @@ export class MisReservas implements OnInit, OnDestroy {
   puedeCancelar(reserva: ReservaResponse): boolean {
     const estado = reserva.estadoReserva || reserva.estado || '';
     const estadoLower = estado.toLowerCase();
-    return !estadoLower.includes('cancelada') && !estadoLower.includes('completada');
+    const puedeCancelar = !estadoLower.includes('cancelada') && !estadoLower.includes('completada');
+    console.log('puedeCancelar:', { estado, estadoLower, puedeCancelar });
+    return puedeCancelar;
   }
 
   puedeConfirmar(reserva: ReservaResponse): boolean {
     const estado = reserva.estadoReserva || reserva.estado || '';
     const estadoLower = estado.toLowerCase();
-    return estadoLower.includes('pendiente');
+    // Permitir confirmar si está pendiente, nueva, o cualquier estado que no sea confirmada/cancelada/completada
+    const puedeConfirmar = estadoLower.includes('pendiente') || 
+                          estadoLower.includes('nueva') || 
+                          (!estadoLower.includes('confirmada') && 
+                           !estadoLower.includes('cancelada') && 
+                           !estadoLower.includes('completada') &&
+                           estado !== '');
+    console.log('puedeConfirmar:', { estado, estadoLower, puedeConfirmar, reservaId: reserva.id });
+    return puedeConfirmar;
   }
 }
 

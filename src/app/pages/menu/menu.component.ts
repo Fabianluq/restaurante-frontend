@@ -228,11 +228,46 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private copiarURL(url: string): void {
-    navigator.clipboard.writeText(url).then(() => {
-      this.snack.open('URL del menú copiada al portapapeles', 'Cerrar', { duration: 3000 });
-    }).catch(() => {
-      this.snack.open('No se pudo copiar la URL', 'Cerrar', { duration: 3000 });
-    });
+    // Verificar si el Clipboard API está disponible
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        this.snack.open('URL del menú copiada al portapapeles', 'Cerrar', { duration: 3000 });
+      }).catch(() => {
+        // Fallback si falla el clipboard API
+        this.copiarURLFallback(url);
+      });
+    } else {
+      // Usar método alternativo si clipboard no está disponible
+      this.copiarURLFallback(url);
+    }
+  }
+
+  private copiarURLFallback(url: string): void {
+    try {
+      // Crear un elemento input temporal
+      const input = document.createElement('input');
+      input.style.position = 'fixed';
+      input.style.left = '-999999px';
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      input.setSelectionRange(0, 99999); // Para móviles
+      
+      // Intentar copiar usando el método antiguo
+      const successful = document.execCommand('copy');
+      document.body.removeChild(input);
+      
+      if (successful) {
+        this.snack.open('URL del menú copiada al portapapeles', 'Cerrar', { duration: 3000 });
+      } else {
+        // Si falla, mostrar la URL para que el usuario la copie manualmente
+        this.snack.open(`URL: ${url}`, 'Cerrar', { duration: 5000 });
+      }
+    } catch (err) {
+      console.error('Error al copiar URL:', err);
+      // Mostrar la URL para que el usuario la copie manualmente
+      this.snack.open(`URL: ${url}`, 'Cerrar', { duration: 5000 });
+    }
   }
 }
 

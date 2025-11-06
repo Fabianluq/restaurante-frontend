@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import * as QRCode from 'qrcode';
 
 export interface QrDialogData {
@@ -25,7 +26,8 @@ export interface QrDialogData {
     MatIconModule,
     MatCardModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSnackBarModule
   ],
   templateUrl: './qr-dialog.html',
   styleUrl: './qr-dialog.css'
@@ -36,7 +38,8 @@ export class QrDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<QrDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: QrDialogData
+    @Inject(MAT_DIALOG_DATA) public data: QrDialogData,
+    private snack: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -61,12 +64,46 @@ export class QrDialogComponent implements OnInit {
   }
 
   copiarURL(): void {
-    navigator.clipboard.writeText(this.data.url).then(() => {
-      // Mostrar mensaje de éxito (podrías usar un snackbar aquí)
-      alert('URL copiada al portapapeles');
-    }).catch(err => {
+    // Verificar si el Clipboard API está disponible
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(this.data.url).then(() => {
+        this.snack.open('URL copiada al portapapeles', 'Cerrar', { duration: 3000 });
+      }).catch(() => {
+        // Fallback si falla el clipboard API
+        this.copiarURLFallback();
+      });
+    } else {
+      // Usar método alternativo si clipboard no está disponible
+      this.copiarURLFallback();
+    }
+  }
+
+  private copiarURLFallback(): void {
+    try {
+      // Crear un elemento input temporal
+      const input = document.createElement('input');
+      input.style.position = 'fixed';
+      input.style.left = '-999999px';
+      input.value = this.data.url;
+      document.body.appendChild(input);
+      input.select();
+      input.setSelectionRange(0, 99999); // Para móviles
+      
+      // Intentar copiar usando el método antiguo
+      const successful = document.execCommand('copy');
+      document.body.removeChild(input);
+      
+      if (successful) {
+        this.snack.open('URL copiada al portapapeles', 'Cerrar', { duration: 3000 });
+      } else {
+        // Si falla, mostrar la URL para que el usuario la copie manualmente
+        this.snack.open(`URL: ${this.data.url}`, 'Cerrar', { duration: 5000 });
+      }
+    } catch (err) {
       console.error('Error al copiar URL:', err);
-    });
+      // Mostrar la URL para que el usuario la copie manualmente
+      this.snack.open(`URL: ${this.data.url}`, 'Cerrar', { duration: 5000 });
+    }
   }
 
   descargarQR(): void {

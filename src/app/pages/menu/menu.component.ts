@@ -230,9 +230,9 @@ export class MenuComponent implements OnInit, OnDestroy {
   private copiarURL(url: string): void {
     // Verificar si el Clipboard API está disponible
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(() => {
-        this.snack.open('URL del menú copiada al portapapeles', 'Cerrar', { duration: 3000 });
-      }).catch(() => {
+    navigator.clipboard.writeText(url).then(() => {
+      this.snack.open('URL del menú copiada al portapapeles', 'Cerrar', { duration: 3000 });
+    }).catch(() => {
         // Fallback si falla el clipboard API
         this.copiarURLFallback(url);
       });

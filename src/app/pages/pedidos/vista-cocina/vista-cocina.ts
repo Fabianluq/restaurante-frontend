@@ -138,20 +138,53 @@ export class VistaCocina implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('Cambiando estado del pedido:', { pedidoId: pedido.id, estadoId: estado.id, estadoDescripcion: estado.descripcion, estadoActual: pedido.estado });
+    
     this.pedidoService.cambiarEstado(pedido.id, estado.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
+        console.log('Respuesta del servicio cambiarEstado:', res);
         if ((res as any)?.error) {
-          const errorMsg = (res as any).error?.message || 'Error al cambiar estado';
-          this.snack.open(errorMsg, 'Cerrar', { duration: 3000 });
-          console.error('Error al cambiar estado:', res);
+          const error = (res as any).error;
+          console.error('Error al cambiar estado:', error);
+          
+          let errorMsg = 'Error al cambiar estado';
+          // Intentar extraer el mensaje de error de diferentes lugares
+          if (error?.message) {
+            errorMsg = error.message;
+          } else if (error?.errorBody?.message) {
+            errorMsg = error.errorBody.message;
+          } else if (error?.errorBody?.detail) {
+            errorMsg = error.errorBody.detail;
+          } else if (error?.mensaje) {
+            errorMsg = error.mensaje;
+          } else if (typeof error === 'string') {
+            errorMsg = error;
+          }
+          
+          this.snack.open(errorMsg, 'Cerrar', { duration: 5000 });
         } else {
           this.snack.open(`Pedido marcado como "${estado.descripcion}"`, 'Cerrar', { duration: 2000 });
           this.cargar();
         }
       },
       error: (err) => {
-        console.error('Error al cambiar estado:', err);
-        this.snack.open('Error de conexión', 'Cerrar', { duration: 3000 });
+        console.error('Error HTTP al cambiar estado:', err);
+        let errorMsg = 'Error de conexión';
+        
+        // Intentar extraer el mensaje del error HTTP
+        if (err?.error?.mensaje) {
+          errorMsg = err.error.mensaje;
+        } else if (err?.error?.message) {
+          errorMsg = err.error.message;
+        } else if (err?.error?.errorBody?.message) {
+          errorMsg = err.error.errorBody.message;
+        } else if (err?.error?.errorBody?.detail) {
+          errorMsg = err.error.errorBody.detail;
+        } else if (err?.message) {
+          errorMsg = err.message;
+        }
+        
+        this.snack.open(errorMsg, 'Cerrar', { duration: 5000 });
       }
     });
   }

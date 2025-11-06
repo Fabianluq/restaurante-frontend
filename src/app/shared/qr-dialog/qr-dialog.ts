@@ -66,7 +66,7 @@ export class QrDialogComponent implements OnInit {
   copiarURL(): void {
     // Verificar si el Clipboard API está disponible
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(this.data.url).then(() => {
+    navigator.clipboard.writeText(this.data.url).then(() => {
         this.snack.open('URL copiada al portapapeles', 'Cerrar', { duration: 3000 });
       }).catch(() => {
         // Fallback si falla el clipboard API

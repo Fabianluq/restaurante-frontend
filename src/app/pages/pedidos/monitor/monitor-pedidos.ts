@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Subject, takeUntil } from 'rxjs';
 import { PedidoService, PedidoResponse } from '../../../core/services/pedido.service';
 import { PedidoDetalleComponent } from '../pedido-detalle/pedido-detalle.component';
+import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-monitor-pedidos',
@@ -71,6 +72,48 @@ export class MonitorPedidos implements OnInit, OnDestroy {
       return p.detalles.reduce((sum, d) => sum + (d.totalDetalle || 0), 0);
     }
     return 0;
+  }
+
+  eliminarPedido(pedido: PedidoResponse): void {
+    const detallesInfo = pedido.detalles && pedido.detalles.length > 0 
+      ? ` con ${pedido.detalles.length} producto(s)` 
+      : ' (sin productos)';
+    
+    const dialogData: ConfirmDialogData = {
+      message: `¿Estás seguro de eliminar el pedido #${pedido.id}${detallesInfo}? Esta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
+      type: 'delete'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: dialogData,
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loading = true;
+        this.pedidoService.eliminar(pedido.id).pipe(takeUntil(this.destroy$)).subscribe({
+          next: (res) => {
+            this.loading = false;
+            if ((res as any)?.error && (res as any).error !== 'Empty response') {
+              const errorMsg = (res as any).error?.message || 'Error al eliminar pedido';
+              this.snack.open(errorMsg, 'Cerrar', { duration: 4000 });
+            } else {
+              this.snack.open('Pedido eliminado exitosamente', 'Cerrar', { duration: 3000 });
+              this.cargar(); // Recargar la lista
+            }
+          },
+          error: (err) => {
+            this.loading = false;
+            console.error('Error al eliminar pedido:', err);
+            const errorMsg = err?.error?.message || 'Error de conexión';
+            this.snack.open(errorMsg, 'Cerrar', { duration: 4000 });
+          }
+        });
+      }
+    });
   }
 }
 

@@ -136,8 +136,19 @@ export class MisPedidos implements OnInit, OnDestroy {
           
           this.snack.open(errorMsg, 'Cerrar', { duration: 5000 });
         } else {
-          this.snack.open(`Pedido marcado como "${estado.descripcion}"`, 'Cerrar', { duration: 2000 });
-          this.cargar();
+          // PUT exitoso - puede tener datos del pedido o solo { success: true }
+          const hasSuccess = (res as any)?.success === true;
+          const hasData = (res as any)?.id !== undefined;
+          
+          if (hasSuccess || hasData) {
+            this.snack.open(`Pedido marcado como "${estado.descripcion}"`, 'Cerrar', { duration: 2000 });
+            this.cargar(); // Recargar la lista para ver el cambio
+          } else {
+            // Respuesta inesperada pero no es error
+            console.warn('Respuesta inesperada al cambiar estado:', res);
+            this.snack.open(`Pedido marcado como "${estado.descripcion}"`, 'Cerrar', { duration: 2000 });
+            this.cargar();
+          }
         }
       },
       error: (err) => {

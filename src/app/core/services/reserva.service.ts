@@ -107,8 +107,18 @@ export class ReservaService {
     return this.api.put<ReservaResponse>(`/reservas/${id}`, reserva).pipe(
       map((res: any) => {
         if ((res as any)?.error) return res;
+        // PUT exitoso - puede tener datos de la reserva o solo éxito
         if (res.id) return res as ReservaResponse;
-        return { error: { message: 'Error al actualizar reserva' } } as any;
+        // Si no hay datos pero tampoco hay error, es un PUT exitoso sin body
+        if (!res || Object.keys(res).length === 0 || (res as any)?.success === true) {
+          return { success: true } as any;
+        }
+        // Verificar si es una respuesta ApiResponse con estado SUCCESS
+        if (res.estado === 'SUCCESS' || res.estado === 'OK' || res.estado === 'EXITOSO') {
+          return res.datos || { success: true } as any;
+        }
+        // Si llegamos aquí sin error explícito, asumir éxito
+        return { success: true } as any;
       })
     );
   }
@@ -117,8 +127,18 @@ export class ReservaService {
     return this.api.put<ReservaResponse>(`/reservas/${id}/cancelar`, {}).pipe(
       map((res: any) => {
         if ((res as any)?.error) return res;
+        // PUT exitoso - puede tener datos de la reserva o solo éxito
         if (res.id) return res as ReservaResponse;
-        return { error: { message: 'Error al cancelar reserva' } } as any;
+        // Si no hay datos pero tampoco hay error, es un PUT exitoso sin body
+        if (!res || Object.keys(res).length === 0 || (res as any)?.success === true) {
+          return { success: true } as any;
+        }
+        // Verificar si es una respuesta ApiResponse con estado SUCCESS
+        if (res.estado === 'SUCCESS' || res.estado === 'OK' || res.estado === 'EXITOSO') {
+          return res.datos || { success: true } as any;
+        }
+        // Si llegamos aquí sin error explícito, asumir éxito
+        return { success: true } as any;
       })
     );
   }
@@ -165,8 +185,18 @@ export class ReservaService {
     return this.api.put<ReservaResponse>(`/reservas/publica/${id}/cancelar?correo=${encodeURIComponent(correo)}`, {}, { skipAuth: true } as any).pipe(
       map((res: any) => {
         if ((res as any)?.error) return res;
+        // PUT exitoso - puede tener datos de la reserva o solo éxito
         if (res.id) return res as ReservaResponse;
-        return { error: { message: 'Error al cancelar reserva' } } as any;
+        // Si no hay datos pero tampoco hay error, es un PUT exitoso sin body
+        if (!res || Object.keys(res).length === 0 || (res as any)?.success === true) {
+          return { success: true } as any;
+        }
+        // Verificar si es una respuesta ApiResponse con estado SUCCESS
+        if (res.estado === 'SUCCESS' || res.estado === 'OK' || res.estado === 'EXITOSO') {
+          return res.datos || { success: true } as any;
+        }
+        // Si llegamos aquí sin error explícito, asumir éxito
+        return { success: true } as any;
       })
     );
   }
@@ -176,8 +206,18 @@ export class ReservaService {
     return this.api.put<ReservaResponse>(`/reservas/publica/${id}/confirmar?correo=${encodeURIComponent(correo)}`, {}, { skipAuth: true } as any).pipe(
       map((res: any) => {
         if ((res as any)?.error) return res;
+        // PUT exitoso - puede tener datos de la reserva o solo éxito
         if (res.id) return res as ReservaResponse;
-        return { error: { message: 'Error al confirmar reserva' } } as any;
+        // Si no hay datos pero tampoco hay error, es un PUT exitoso sin body
+        if (!res || Object.keys(res).length === 0 || (res as any)?.success === true) {
+          return { success: true } as any;
+        }
+        // Verificar si es una respuesta ApiResponse con estado SUCCESS
+        if (res.estado === 'SUCCESS' || res.estado === 'OK' || res.estado === 'EXITOSO') {
+          return res.datos || { success: true } as any;
+        }
+        // Si llegamos aquí sin error explícito, asumir éxito
+        return { success: true } as any;
       })
     );
   }

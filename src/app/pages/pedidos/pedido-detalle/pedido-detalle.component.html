@@ -20,7 +20,35 @@
   </mat-card>
 
   <mat-card class="detalles-card">
-    <h3>Productos</h3>
+    <div class="header-section">
+      <h3>Productos</h3>
+      <button *ngIf="puedeAgregarProductos()" mat-raised-button color="primary" (click)="mostrarAgregarProducto = !mostrarAgregarProducto">
+        <mat-icon>add</mat-icon> Agregar Producto
+      </button>
+    </div>
+    
+    <div *ngIf="mostrarAgregarProducto && puedeAgregarProductos()" class="agregar-producto-section">
+      <div *ngIf="loading" class="loading-products">
+        <mat-spinner diameter="30"></mat-spinner>
+      </div>
+      <div *ngIf="!loading" class="categorias-grid">
+        <div *ngFor="let grupo of productosPorCategoria" class="categoria-group">
+          <h4>{{ grupo.categoria }}</h4>
+          <div class="productos-list">
+            <button type="button" 
+                    *ngFor="let producto of grupo.productos" 
+                    mat-stroked-button
+                    [disabled]="agregandoProducto"
+                    (click)="agregarProductoAlPedido(producto)"
+                    class="producto-btn">
+              <span>{{ producto.nombre }}</span>
+              <span class="precio">${{ producto.precio | number:'1.0-0' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <table class="detalles-table">
       <thead>
         <tr>

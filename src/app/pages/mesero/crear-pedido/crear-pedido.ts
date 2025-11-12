@@ -71,13 +71,8 @@ export class CrearPedido implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarEstadoInicial();
     // Cargar mesas y pedidos en paralelo, luego filtrar
+    // Después de cargar, establecer mesaId si viene en query params
     this.cargarMesasYPedidos();
-    const mesaId = this.route.snapshot.queryParams['mesaId'];
-    if (mesaId) {
-      const mesaIdNum = Number(mesaId);
-      this.form.patchValue({ mesaId: mesaIdNum });
-      this.cargarMesa(mesaIdNum);
-    }
     this.cargarClientes();
     this.cargarProductos();
   }
@@ -122,31 +117,36 @@ export class CrearPedido implements OnInit, OnDestroy {
         // Procesar mesas
         if (!(resultados.mesas as any)?.error) {
           const todasLasMesas = Array.isArray(resultados.mesas) ? resultados.mesas : [];
-          // Filtrar solo las mesas que NO están ocupadas según su estado
+          // MVP: Incluir todas las mesas (excepto reservadas) - el filtrado final se hace en filtrarMesasDisponibles()
+          // Permitir mesas "Disponible" y "Ocupada" - solo excluir "Reservada"
           this.mesas = todasLasMesas.filter((mesa: MesaResponse) => {
             const estado = (mesa.estado || '').toLowerCase();
-            return !estado.includes('ocupada');
+            return !estado.includes('reservada');
           });
-          console.log('[CrearPedido] Mesas cargadas (no ocupadas por estado):', this.mesas.length, 'de', todasLasMesas.length);
+          console.log('[CrearPedido] Mesas cargadas (excluyendo reservadas):', this.mesas.length, 'de', todasLasMesas.length);
         }
 
         // Procesar pedidos activos
         if (!(resultados.pedidos as any)?.error) {
           const todosLosPedidos = Array.isArray(resultados.pedidos) ? resultados.pedidos : [];
-          // Filtrar pedidos activos: Pendiente, En Preparación, Listo, Entregado
-          // Excluir: Pagado, Cancelado
+          // Filtrar pedidos activos: Solo Pendiente, En Preparación, Listo
+          // Excluir: Entregado, Pagado, Cancelado (estos no bloquean la creación de nuevos pedidos)
           this.pedidosActivos = todosLosPedidos.filter((p: PedidoResponse) => {
             const estado = (p.estado || '').toLowerCase();
-            return estado !== 'pagado' && 
-                   estado !== 'cancelado' && 
-                   estado !== 'pago' &&
-                   estado !== 'cancelar';
+            // Solo considerar activos los estados que realmente bloquean la mesa
+            return estado.includes('pendiente') || 
+                   estado.includes('preparación') || 
+                   estado.includes('preparacion') ||
+                   estado.includes('listo');
           });
           console.log('[CrearPedido] Pedidos activos:', this.pedidosActivos.length);
         }
 
         // Ahora que tenemos ambas listas, filtrar mesas disponibles
         this.filtrarMesasDisponibles();
+        
+        // Después de cargar y filtrar mesas, establecer mesaId si viene en query params
+        this.establecerMesaDesdeQueryParams();
       },
       error: (err) => {
         console.error('[CrearPedido] Error al cargar mesas/pedidos:', err);
@@ -155,6 +155,34 @@ export class CrearPedido implements OnInit, OnDestroy {
       }
     });
   }
+  
+  establecerMesaDesdeQueryParams(): void {
+    const mesaId = this.route.snapshot.queryParams['mesaId'];
+    if (mesaId) {
+      const mesaIdNum = Number(mesaId);
+      console.log('[CrearPedido] Estableciendo mesa desde query params:', mesaIdNum);
+      
+      // Verificar que la mesa esté en las mesas disponibles
+      const mesaEncontrada = this.mesasDisponibles.find(m => m.id === mesaIdNum);
+      if (mesaEncontrada) {
+        this.form.patchValue({ mesaId: mesaIdNum });
+        this.cargarMesa(mesaIdNum);
+        console.log('[CrearPedido] Mesa establecida correctamente:', mesaEncontrada.numero);
+      } else {
+        // Si no está en disponibles, verificar si está en todas las mesas
+        const mesaEnTodas = this.mesas.find(m => m.id === mesaIdNum);
+        if (mesaEnTodas) {
+          console.warn('[CrearPedido] Mesa encontrada pero no disponible:', mesaEnTodas.numero, 'Estado:', mesaEnTodas.estado);
+          // Aún así, intentar establecerla (puede que el filtro sea muy restrictivo)
+          this.form.patchValue({ mesaId: mesaIdNum });
+          this.cargarMesa(mesaIdNum);
+        } else {
+          console.warn('[CrearPedido] Mesa no encontrada con ID:', mesaIdNum);
+          this.snack.open(`La mesa con ID ${mesaIdNum} no fue encontrada`, 'Cerrar', { duration: 3000 });
+        }
+      }
+    }
+  }
 
   cargarMesas(): void {
     // Método de respaldo si forkJoin falla
@@ -162,12 +190,16 @@ export class CrearPedido implements OnInit, OnDestroy {
       next: (res) => {
         if (!(res as any)?.error) {
           const todasLasMesas = Array.isArray(res) ? res : [];
+          // MVP: Incluir todas las mesas (excepto reservadas) - el filtrado final se hace en filtrarMesasDisponibles()
           this.mesas = todasLasMesas.filter((mesa: MesaResponse) => {
             const estado = (mesa.estado || '').toLowerCase();
-            return !estado.includes('ocupada');
+            return !estado.includes('reservada');
           });
-          // Sin pedidos activos, todas las mesas no ocupadas están disponibles
+          // Sin pedidos activos, todas las mesas (disponibles y ocupadas sin pedidos) están disponibles
           this.mesasDisponibles = this.mesas;
+          
+          // Después de cargar, establecer mesaId si viene en query params
+          this.establecerMesaDesdeQueryParams();
         }
       }
     });
@@ -194,30 +226,57 @@ export class CrearPedido implements OnInit, OnDestroy {
       }
     });
 
-    // Filtrar mesas: excluir las que tienen pedidos activos
+    // MVP: Filtrar mesas: excluir las que tienen pedidos activos
+    // Permitir mesas "Disponible" y "Ocupada" si no tienen pedidos activos
     this.mesasDisponibles = this.mesas.filter(mesa => {
       const tienePedidoActivo = mesasConPedidosActivos.has(mesa.id);
       if (tienePedidoActivo) {
         console.log(`[CrearPedido] Excluyendo mesa ${mesa.numero} (ID: ${mesa.id}) - tiene pedido activo`);
+        return false;
       }
-      return !tienePedidoActivo;
+      
+      // MVP: Permitir mesas "Disponible" y "Ocupada" (si no tienen pedidos activos)
+      const estado = (mesa.estado || '').toLowerCase();
+      const esReservada = estado.includes('reservada');
+      
+      // Solo excluir mesas "Reservada", permitir "Disponible" y "Ocupada"
+      return !esReservada;
     });
 
     console.log('[CrearPedido] Resumen de filtrado:');
-    console.log('  - Total mesas (no ocupadas por estado):', this.mesas.length);
+    console.log('  - Total mesas (excluyendo reservadas):', this.mesas.length);
     console.log('  - Mesas con pedidos activos:', mesasConPedidosActivos.size);
     console.log('  - Mesas disponibles (sin pedidos activos):', this.mesasDisponibles.length);
-    console.log('  - Mesas disponibles:', this.mesasDisponibles.map(m => `Mesa ${m.numero} (ID: ${m.id})`));
+    console.log('  - Mesas disponibles:', this.mesasDisponibles.map(m => `Mesa ${m.numero} (ID: ${m.id}, Estado: ${m.estado})`));
   }
 
   cargarMesa(id: number): void {
-    this.mesaService.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        if (!(res as any)?.error) {
-          this.mesaSeleccionada = res as MesaResponse;
+    // Buscar la mesa en las listas ya cargadas (no hacer llamada HTTP)
+    // Primero buscar en mesas disponibles, luego en todas las mesas
+    const mesa = this.mesasDisponibles.find(m => m.id === id) || 
+                 this.mesas.find(m => m.id === id);
+    
+    if (mesa) {
+      this.mesaSeleccionada = mesa;
+      console.log('[CrearPedido] Mesa cargada desde lista local:', mesa.numero);
+    } else {
+      console.warn('[CrearPedido] Mesa no encontrada en listas locales con ID:', id);
+      // Si no está en las listas, intentar cargarla desde el servicio (puede fallar si el endpoint no existe)
+      this.mesaService.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
+        next: (res) => {
+          if (!(res as any)?.error) {
+            this.mesaSeleccionada = res as MesaResponse;
+            console.log('[CrearPedido] Mesa cargada desde servicio:', (res as MesaResponse).numero);
+          } else {
+            console.error('[CrearPedido] Error al cargar mesa desde servicio:', (res as any).error);
+          }
+        },
+        error: (err) => {
+          console.error('[CrearPedido] Error HTTP al cargar mesa:', err);
+          // No mostrar error al usuario, solo log
         }
-      }
-    });
+      });
+    }
   }
 
   onMesaChange(mesaId: number | null): void {

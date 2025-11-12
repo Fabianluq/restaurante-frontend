@@ -50,10 +50,24 @@ export class ApiClientService {
   }
 
   private normalizeBackend<T>(raw: any): T | { error: any } {
-    if (raw == null) return { error: 'Empty response' };
+    // MVP: Permitir respuestas null/vacías para PUT exitosos (200 OK sin body)
+    // El backend puede devolver 200 OK sin contenido, lo cual es válido
+    if (raw == null) {
+      // Retornar un objeto vacío en lugar de error para PUT exitosos
+      // Los métodos que esperan datos deben verificar si hay datos
+      return {} as T;
+    }
 
     // Si tu backend envuelve la respuesta con { estado, datos } adaptalo aquí
     if (raw.estado !== undefined && raw.datos !== undefined) {
+      // Si estado es SUCCESS o similar, incluso si datos es null, es una respuesta exitosa
+      if (raw.estado === 'SUCCESS' || raw.estado === 'OK' || raw.estado === 'EXITOSO') {
+        return raw.datos as T; // Puede ser null, pero no es un error
+      }
+      // Si estado es ERROR, retornar error
+      if (raw.estado === 'ERROR') {
+        return { error: raw.mensaje || raw.message || 'Error del servidor' };
+      }
       return raw.datos as T;
     }
 

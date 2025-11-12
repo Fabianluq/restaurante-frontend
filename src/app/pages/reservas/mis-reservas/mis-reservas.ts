@@ -238,8 +238,19 @@ export class MisReservas implements OnInit, OnDestroy {
               
               this.snack.open(mensaje, 'Cerrar', { duration: 5000 });
             } else {
-              this.snack.open('✅ Reserva cancelada exitosamente. Se enviará una notificación a tu correo.', 'Cerrar', { duration: 5000 });
-              this.buscarReservas(); // Recargar la lista
+              // PUT exitoso - puede tener datos de la reserva o solo { success: true }
+              const hasSuccess = (res as any)?.success === true;
+              const hasData = (res as any)?.id !== undefined;
+              
+              if (hasSuccess || hasData) {
+                this.snack.open('✅ Reserva cancelada exitosamente. Se enviará una notificación a tu correo.', 'Cerrar', { duration: 5000 });
+                this.buscarReservas(); // Recargar la lista
+              } else {
+                // Respuesta inesperada pero no es error
+                console.warn('Respuesta inesperada al cancelar reserva:', res);
+                this.snack.open('✅ Reserva cancelada exitosamente. Se enviará una notificación a tu correo.', 'Cerrar', { duration: 5000 });
+                this.buscarReservas();
+              }
             }
           },
           error: (err) => {
@@ -296,9 +307,20 @@ export class MisReservas implements OnInit, OnDestroy {
               
               this.snack.open(mensaje, 'Cerrar', { duration: 5000 });
             } else {
-              console.log('Reserva confirmada exitosamente');
-              this.snack.open('✅ Reserva confirmada exitosamente. Se enviará una notificación de confirmación a tu correo.', 'Cerrar', { duration: 5000 });
-              this.buscarReservas(); // Recargar la lista
+              // PUT exitoso - puede tener datos de la reserva o solo { success: true }
+              const hasSuccess = (res as any)?.success === true;
+              const hasData = (res as any)?.id !== undefined;
+              
+              if (hasSuccess || hasData) {
+                console.log('Reserva confirmada exitosamente');
+                this.snack.open('✅ Reserva confirmada exitosamente. Se enviará una notificación de confirmación a tu correo.', 'Cerrar', { duration: 5000 });
+                this.buscarReservas(); // Recargar la lista
+              } else {
+                // Respuesta inesperada pero no es error
+                console.warn('Respuesta inesperada al confirmar reserva:', res);
+                this.snack.open('✅ Reserva confirmada exitosamente. Se enviará una notificación de confirmación a tu correo.', 'Cerrar', { duration: 5000 });
+                this.buscarReservas();
+              }
             }
           },
           error: (err) => {
